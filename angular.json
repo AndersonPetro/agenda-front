@@ -1,11 +1,25 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": "c5267c24-d126-4de3-b1be-7a2108205c24",
+    "schematicCollections": [
+      "@angular-eslint/schematics",
+      "@ngrx/schematics"
+      ]
+  },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "agenda-front": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+      "@schematics/angular:component": {
+        "style": "scss"
+      },
+      "@schematics/angular:application": {
+        "strict": true
+      }
+    },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -31,7 +45,7 @@
             ],
             "scripts": [],
             "server": "src/main.server.ts",
-            "outputMode": "server",
+            "prerender": false,
             "ssr": {
               "entry": "src/server.ts"
             }
