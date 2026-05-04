@@ -1,0 +1,37 @@
+<div class="about-container">
+  <div class="glass-card about-card">
+    <div class="brand">
+      <div class="logo">A</div>
+      <h1>Sobre Nós</h1>
+      <p>Conheça a nossa plataforma de agendamentos e os serviços que oferecemos.</p>
+    </div>
+
+    <div class="about-content">
+      <p class="description">
+        O <strong>Agenda Service</strong> é uma plataforma moderna desenvolvida para facilitar a gestão de seus compromissos.
+        Aqui estão alguns dos serviços que atualmente integramos com o nosso backend:
+      </p>
+
+      <div *ngIf="isLoading" class="loading-state">
+        Buscando dados do servidor (agenda-service)...
+      </div>
+
+      <div *ngIf="!isLoading && availableServices.length === 0" class="empty-state">
+        Nenhum serviço disponível no momento.
+      </div>
+
+      <ul class="services-list" *ngIf="!isLoading && availableServices.length > 0">
+        <li *ngFor="let service of availableServices" class="service-item">
+          <div class="service-info">
+            <h4>{{ service.name }}</h4>
+            <p>{{ service.description }}</p>
+          </div>
+          <div class="service-meta">
+            <span class="price">R$ {{ service.price }}</span>
+            <span class="duration">{{ service.durationMinutes }} min</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

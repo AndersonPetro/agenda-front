@@ -1,0 +1,38 @@
+<div class="associates-container">
+  <div class="page-header">
+    <div>
+      <h2>Gerenciamento de Associados</h2>
+      <p class="subtitle">Cadastre e gerencie os associados da clínica.</p>
+    </div>
+    <button class="btn-primary">Novo Associado</button>
+  </div>
+
+  <div class="glass-card">
+    <div *ngIf="isLoading" class="loading">Carregando associados...</div>
+    
+    <div *ngIf="!isLoading && associates.length === 0" class="empty-state">
+      <div class="icon">👥</div>
+      <h3>Nenhum associado encontrado</h3>
+      <p class="text-secondary">Comece adicionando um novo associado ao sistema.</p>
+    </div>
+
+    <table class="data-table" *ngIf="!isLoading && associates.length > 0">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let associate of associates">
+          <td>{{ associate.name }}</td>
+          <td>{{ associate.status }}</td>
+          <td>
+            <button class="btn-secondary">Editar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
