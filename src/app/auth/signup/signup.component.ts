@@ -131,7 +131,7 @@ export class SignupComponent {
           this.successMsg = 'Conta criada com sucesso! Redirecionando para o login...';
           setTimeout(() => this.router.navigate(['/login']), 2000);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isLoading = false;
           this.errorMsg = err.error?.message || 'Erro ao criar conta. Tente novamente.';
         }

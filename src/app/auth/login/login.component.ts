@@ -117,7 +117,7 @@ export class LoginComponent {
         next: () => {
           this.router.navigate(['/appointments']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isLoading = false;
           this.errorMsg = 'Credenciais inválidas ou erro no servidor.';
         }

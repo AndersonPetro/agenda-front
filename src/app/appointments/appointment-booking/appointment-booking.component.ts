@@ -154,8 +154,15 @@ export class AppointmentBookingComponent implements OnInit {
       // Combine date and time
       const scheduledAt = `${formValue.date}T${this.selectedSlot}`;
 
+      const userId = this.authService.getUserId();
+      if (!userId) {
+        this.isSubmitting = false;
+        this.router.navigate(['/login']);
+        return;
+      }
+
       const payload = {
-        userId: this.authService.getUserId(),
+        userId: userId,
         serviceId: formValue.serviceId,
         scheduledAt: scheduledAt,
         notes: formValue.notes

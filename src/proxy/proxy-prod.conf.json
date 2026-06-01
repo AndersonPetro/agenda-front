@@ -1,0 +1,20 @@
+{
+    "/api": {
+        "target": "http://localhost:8080/tst/agenda-service",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/api": ""
+        }
+    },
+    "/local": {
+        "target": "http://localhost:9000/covenant-portal-bff",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/local": ""
+        }
+    }
+}
