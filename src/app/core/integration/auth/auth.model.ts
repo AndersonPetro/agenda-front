@@ -1,16 +1,19 @@
 export interface AuthRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
+  accessToken?: string;
+  access_token?: string;
+  refreshToken?: string;
+  refresh_token?: string;
+  user?: {
+    id?: string;
     name: string;
     email: string;
   }
-  message: string;
+  message?: string;
 }
 
 export interface RecoveryPassword {

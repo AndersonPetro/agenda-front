@@ -3,9 +3,9 @@ import { AuthRequest } from "./auth.model";
 
 export class LoginBuilder {
 
-  static build(username: string, password: string): AuthRequest {
+  static build(email: string, password: string): AuthRequest {
     return Builder<AuthRequest>()
-      .username(username)
+      .email(email)
       .password(password)
       .build();
   };

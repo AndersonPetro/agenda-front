@@ -11,7 +11,7 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     const authRequest: AuthRequest = {
-      username: credentials.email,
+      email: credentials.email,
       password: credentials.password
     };
     return this.authServiceApi.auth(authRequest).pipe(
@@ -30,19 +30,40 @@ export class AuthService {
   }
 
   private setSession(authResult: AuthResponse) {
-    if (authResult.accessToken) {
-      localStorage.setItem('token', authResult.accessToken);
+    const token = authResult.accessToken || authResult.access_token;
+    const refreshToken = authResult.refreshToken || authResult.refresh_token;
+
+    if (token) {
+      localStorage.setItem('token', token);
     }
-    if (authResult.user) {
-      localStorage.setItem('user', JSON.stringify(authResult.user));
-      // Save user id or email as the userId
-      const userId = (authResult.user as any).id || authResult.user.email;
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
+
+    let user = authResult.user;
+    if (!user && token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        user = {
+          id: payload.sub,
+          name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim() || payload.preferred_username || '',
+          email: payload.email || ''
+        };
+      } catch (e) {
+        console.error('Failed to decode JWT token', e);
+      }
+    }
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+      const userId = user.id || user.email;
       localStorage.setItem('userId', userId);
     }
   }
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
   }

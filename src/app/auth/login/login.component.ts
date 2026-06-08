@@ -115,6 +115,7 @@ export class LoginComponent {
       this.errorMsg = '';
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
+          this.isLoading = false;
           this.router.navigate(['/appointments']);
         },
         error: (err: any) => {
