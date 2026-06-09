@@ -1,0 +1,108 @@
+<div class="client-container">
+  <!-- Header -->
+  <header class="client-header">
+    <div class="header-left">
+      <div class="logo">A</div>
+      <div>
+        <h1>AgendaService</h1>
+        <p class="subtitle">Bem-vindo(a), {{ userName }}</p>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">Sair</button>
+  </header>
+
+  <div *ngIf="successMsg" class="toast-success">{{ successMsg }}</div>
+
+  <!-- Content Grid -->
+  <div class="client-grid">
+    
+    <!-- Left Column: Booking Steps -->
+    <div class="booking-section glass-card">
+      <h2>Novo Agendamento</h2>
+      
+      <!-- Step 1: Select Service -->
+      <div class="booking-step">
+        <label class="step-label">1. Escolha o Serviço</label>
+        <div class="services-list">
+          <div 
+            *ngFor="let service of services" 
+            class="service-item"
+            [class.active]="selectedService?.id === service.id"
+            (click)="selectService(service)"
+          >
+            <div class="service-details">
+              <h3>{{ service.name }}</h3>
+              <span class="duration">⏱ {{ service.duration }}</span>
+            </div>
+            <span class="price">{{ service.price }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Details Form -->
+      <div class="booking-step" *ngIf="selectedService">
+        <label class="step-label">2. Escolha o Profissional</label>
+        <select class="form-control" [(ngModel)]="selectedProfessional">
+          <option value="" disabled selected>Selecione um profissional...</option>
+          <option *ngFor="let prof of professionals" [value]="prof">{{ prof }}</option>
+        </select>
+      </div>
+
+      <!-- Step 3: Date Picker -->
+      <div class="booking-step" *ngIf="selectedService && selectedProfessional">
+        <label class="step-label">3. Selecione a Data</label>
+        <input type="date" class="form-control" [(ngModel)]="selectedDate">
+      </div>
+
+      <!-- Step 4: Available Slots -->
+      <div class="booking-step" *ngIf="selectedService && selectedProfessional && selectedDate">
+        <label class="step-label">4. Escolha o Horário</label>
+        <div class="slots-grid">
+          <button 
+            *ngFor="let slot of availableSlots" 
+            class="slot-btn"
+            [class.active]="selectedSlot === slot"
+            (click)="selectSlot(slot)"
+          >
+            {{ slot }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm Booking Button -->
+      <button 
+        class="btn-primary confirm-btn" 
+        [disabled]="!selectedService || !selectedProfessional || !selectedDate || !selectedSlot"
+        (click)="confirmBooking()"
+        *ngIf="selectedService"
+      >
+        Confirmar Agendamento
+      </button>
+
+    </div>
+
+    <!-- Right Column: My Appointments -->
+    <div class="tracking-section glass-card">
+      <h2>Meus Agendamentos</h2>
+      <p class="description">Acompanhe o status dos seus serviços marcados.</p>
+
+      <div *ngIf="myAppointments.length === 0" class="empty-state">
+        <span class="icon">📅</span>
+        <p>Você ainda não tem agendamentos marcados.</p>
+      </div>
+
+      <div class="appointments-list" *ngIf="myAppointments.length > 0">
+        <div *ngFor="let appt of myAppointments" class="appt-card">
+          <div class="appt-info">
+            <h3>{{ appt.service }}</h3>
+            <p class="meta">🧑‍💼 {{ appt.professional }}</p>
+            <p class="datetime">📅 {{ appt.date }} às {{ appt.time }}</p>
+          </div>
+          <span class="badge" [ngClass]="getStatusClass(appt.status)">{{ appt.status }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

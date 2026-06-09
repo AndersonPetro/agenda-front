@@ -116,7 +116,13 @@ export class LoginComponent {
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
           this.isLoading = false;
-          this.router.navigate(['/appointments']);
+          if (this.authService.hasRole('ADMIN')) {
+            this.router.navigate(['/admin/dashboard']);
+          } else if (this.authService.hasRole('CLIENTE')) {
+            this.router.navigate(['/cliente/agendamentos']);
+          } else {
+            this.router.navigate(['/appointments']);
+          }
         },
         error: (err: any) => {
           this.isLoading = false;

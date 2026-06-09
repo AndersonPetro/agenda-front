@@ -1,0 +1,261 @@
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <span class="brand-name">AgendaService</span>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <button class="nav-btn" [class.active]="activeTab === 'Dashboard'" (click)="selectTab('Dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="nav-btn" [class.active]="activeTab === 'Agendamentos'" (click)="selectTab('Agendamentos')">
+        <span class="icon">📅</span> Agendamentos
+      </button>
+      <button class="nav-btn" [class.active]="activeTab === 'Serviços'" (click)="selectTab('Serviços')">
+        <span class="icon">🛠️</span> Serviços
+      </button>
+      <button class="nav-btn" [class.active]="activeTab === 'Clientes'" (click)="selectTab('Clientes')">
+        <span class="icon">👥</span> Clientes
+      </button>
+      <button class="nav-btn" [class.active]="activeTab === 'Relatórios'" (click)="selectTab('Relatórios')">
+        <span class="icon">📈</span> Relatórios
+      </button>
+      <button class="nav-btn" [class.active]="activeTab === 'Configurações'" (click)="selectTab('Configurações')">
+        <span class="icon">⚙️</span> Configurações
+      </button>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="main-header">
+      <h1>Painel Administrativo</h1>
+      <span class="user-role">Administrador</span>
+    </header>
+
+    <!-- Content Sections based on Active Tab -->
+    
+    <!-- Tab: Dashboard -->
+    <div *ngIf="activeTab === 'Dashboard'" class="tab-content">
+      <!-- Indicators Row -->
+      <section class="indicators-grid">
+        <div class="indicator-card glass-card">
+          <span class="indicator-label">Agendamentos hoje</span>
+          <span class="indicator-value text-accent">{{ todayCount }}</span>
+        </div>
+        <div class="indicator-card glass-card">
+          <span class="indicator-label">Agendamentos próximos</span>
+          <span class="indicator-value text-success">{{ upcomingCount }}</span>
+        </div>
+        <div class="indicator-card glass-card">
+          <span class="indicator-label">Clientes cadastrados</span>
+          <span class="indicator-value text-warning">{{ clientCount }}</span>
+        </div>
+        <div class="indicator-card glass-card">
+          <span class="indicator-label">Serviços ativos</span>
+          <span class="indicator-value text-info">{{ serviceCount }}</span>
+        </div>
+      </section>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        <!-- Upcoming Appointments -->
+        <section class="grid-section glass-card">
+          <h2>Próximos Agendamentos</h2>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Horário</th>
+                  <th>Cliente</th>
+                  <th>Serviço</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let appt of appointments">
+                  <td><strong>{{ appt.time }}</strong></td>
+                  <td>{{ appt.client }}</td>
+                  <td><span class="service-badge">{{ appt.service }}</span></td>
+                  <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'">{{ appt.status }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Quick Summary of Services -->
+        <section class="grid-section glass-card">
+          <h2>Serviços Ativos</h2>
+          <ul class="quick-list">
+            <li *ngFor="let service of services" class="list-item">
+              <div class="item-name">
+                <h3>{{ service.name }}</h3>
+                <span class="category">{{ service.category }}</span>
+              </div>
+              <div class="item-meta">
+                <span class="price">{{ service.price }}</span>
+                <span class="duration">{{ service.duration }}</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- Tab: Agendamentos -->
+    <div *ngIf="activeTab === 'Agendamentos'" class="tab-content">
+      <section class="glass-card">
+        <h2>Controle de Agenda</h2>
+        <p class="description">Gerencie todas as reservas ativas, conclua ou cancele serviços.</p>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let appt of appointments">
+                <td><strong>{{ appt.time }}</strong></td>
+                <td>{{ appt.client }}</td>
+                <td><span class="service-badge">{{ appt.service }}</span></td>
+                <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'">{{ appt.status }}</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action success">✓ Confirmar</button>
+                    <button class="btn-action danger">✗ Cancelar</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Serviços -->
+    <div *ngIf="activeTab === 'Serviços'" class="tab-content">
+      <section class="glass-card">
+        <div class="section-header">
+          <h2>Catálogo de Serviços</h2>
+          <button class="btn-primary-small">+ Adicionar Serviço</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Duração</th>
+                <th>Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let service of services">
+                <td><strong>{{ service.name }}</strong></td>
+                <td>{{ service.category }}</td>
+                <td>{{ service.duration }}</td>
+                <td>{{ service.price }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action">Editar</button>
+                    <button class="btn-action danger">Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Clientes -->
+    <div *ngIf="activeTab === 'Clientes'" class="tab-content">
+      <section class="glass-card">
+        <h2>Clientes Cadastrados</h2>
+        <div class="search-bar">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="🔍 Buscar por nome ou data (ex: 10/05/2026)..." class="form-control">
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Cadastro</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of paginatedClients">
+                <td><strong>{{ client.name }}</strong></td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.phone }}</td>
+                <td>{{ client.joined }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action">Ficha</button>
+                    <button class="btn-action danger">Bloquear</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button (click)="currentPage = 1" [disabled]="currentPage === 1" class="btn-page">Primeira</button>
+          <button (click)="prevPage()" [disabled]="currentPage === 1" class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn-page">Próxima</button>
+          <button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages" class="btn-page">Última</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Relatórios -->
+    <div *ngIf="activeTab === 'Relatórios'" class="tab-content">
+      <section class="glass-card">
+        <h2>Relatórios de Desempenho</h2>
+        <p class="description">Consulte dados estatísticos e financeiros do sistema.</p>
+        <div class="reports-placeholder">
+          <span class="icon-big">📈</span>
+          <p>Estatísticas de agendamento e faturamento estarão disponíveis em breve.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Configurações -->
+    <div *ngIf="activeTab === 'Configurações'" class="tab-content">
+      <section class="glass-card">
+        <h2>Configurações do Sistema</h2>
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Nome do Estabelecimento</label>
+            <input type="text" value="AgendaService Matriz" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Horário de Atendimento</label>
+            <input type="text" value="08:00 às 18:00" class="form-control">
+          </div>
+          <button class="btn-primary">Salvar Alterações</button>
+        </div>
+      </section>
+    </div>
+
+  </main>
+</div>

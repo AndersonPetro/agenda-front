@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/integration/auth/auth.service';
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
     <nav class="navbar glass-card" *ngIf="isAuthenticated">
-      <div class="nav-brand">
+      <div class="nav-brand" (click)="onBrandClick()" style="cursor: pointer;">
         <div class="logo">A</div>
         <span class="brand-name">AgendaService</span>
       </div>
@@ -87,10 +87,19 @@ export class NavbarComponent implements OnInit {
   private router = inject(Router);
 
   isAuthenticated = false;
+  isAdmin = false;
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
-    // In a real app we'd subscribe to an auth state observable
+    this.isAdmin = this.authService.hasRole('ADMIN');
+  }
+
+  onBrandClick() {
+    if (this.isAdmin) {
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      this.router.navigate(['/appointments']);
+    }
   }
 
   logout() {

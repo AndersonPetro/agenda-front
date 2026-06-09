@@ -1,0 +1,344 @@
+.client-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+}
+
+/* Header Styling */
+.client-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      background-color: #2563eb;
+      color: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin: 0;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin: 0.15rem 0 0 0;
+    }
+  }
+
+  .logout-btn {
+    padding: 0.6rem 1.25rem;
+    background-color: transparent;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f1f5f9;
+      border-color: #94a3b8;
+    }
+  }
+}
+
+/* Success Toast */
+.toast-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Grid Layout */
+.client-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2.5rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.glass-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .description {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Booking Steps */
+.booking-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.3s ease-out;
+
+  .step-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #334155;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Service Selection list */
+.services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.service-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
+
+  &:hover {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+
+  &.active {
+    border-color: #1e3a8a;
+    background-color: #eff6ff;
+    box-shadow: inset 0 0 0 1px #1e3a8a;
+  }
+
+  .service-details {
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 0.25rem 0;
+    }
+    .duration {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  }
+
+  .price {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 1rem;
+  }
+}
+
+/* Form inputs */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #1e3a8a;
+  }
+}
+
+/* Slots Grid */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+}
+
+.slot-btn {
+  padding: 0.6rem 0;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+  }
+
+  &.active {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border-color: #1e3a8a;
+  }
+}
+
+/* Buttons */
+.confirm-btn {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background-color: #1d4ed8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* My Appointments Tracking */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  text-align: center;
+  color: #64748b;
+
+  .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  p { margin: 0; }
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.appt-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+  }
+
+  .appt-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .meta, .datetime {
+      font-size: 0.825rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .datetime {
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+  }
+
+  .badge {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 999px;
+    text-transform: uppercase;
+
+    &.badge-scheduled {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    &.badge-completed {
+      background-color: #e2e8f0;
+      color: #475569;
+    }
+  }
+}

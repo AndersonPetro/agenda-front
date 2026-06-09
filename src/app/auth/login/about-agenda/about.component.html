@@ -1,37 +1,326 @@
 <div class="about-container">
-  <div class="glass-card about-card">
-    <div class="brand">
-      <div class="logo">A</div>
-      <h1>Sobre Nós</h1>
-      <p>Conheça a nossa plataforma de agendamentos e os serviços que oferecemos.</p>
-    </div>
+  <div class="results-slide">
+    
+    <!-- Title Header -->
+    <header class="slide-header">
+      <h1 class="slide-title">RESULTADOS ESPERADOS</h1>
+      <div class="header-nav">
+        <a routerLink="/login" class="nav-btn btn-secondary">Entrar</a>
+        <a routerLink="/signup" class="nav-btn btn-primary">Cadastrar</a>
+      </div>
+    </header>
 
-    <div class="about-content">
-      <p class="description">
-        O <strong>Agenda Service</strong> é uma plataforma moderna desenvolvida para facilitar a gestão de seus compromissos.
-        Aqui estão alguns dos serviços que atualmente integramos com o nosso backend:
-      </p>
+    <!-- Content Grid -->
+    <div class="slide-grid">
+      
+      <!-- Left Column: Description & Devices -->
+      <div class="grid-left">
+        <p class="slide-description">
+          Espera-se que o sistema de agendamento de serviços proporcione benefícios significativos para clientes e prestadores de serviço, trazendo mais organização, praticidade e eficiência para o processo de agendamento.
+        </p>
 
-      <div *ngIf="isLoading" class="loading-state">
-        Buscando dados do servidor (agenda-service)...
+        <!-- Devices Showcase -->
+        <div class="mockups-wrapper">
+          
+          <!-- Laptop Device -->
+          <div class="laptop-mockup">
+            <div class="laptop-screen">
+              
+              <!-- Dashboard Sidebar -->
+              <aside class="mock-sidebar">
+                <div class="mock-brand">
+                  <div class="mock-logo">A</div>
+                  <span class="mock-brand-name">AgendaService</span>
+                </div>
+                <nav class="mock-nav">
+                  <span class="nav-item active"><span class="icon">📊</span> Dashboard</span>
+                  <span class="nav-item"><span class="icon">📅</span> Agendamentos</span>
+                  <span class="nav-item"><span class="icon">🛠️</span> Serviços</span>
+                  <span class="nav-item"><span class="icon">👥</span> Clientes</span>
+                  <span class="nav-item"><span class="icon">📈</span> Relatórios</span>
+                  <span class="nav-item"><span class="icon">⚙️</span> Configurações</span>
+                </nav>
+              </aside>
+
+              <!-- Dashboard Dashboard Area -->
+              <main class="mock-dashboard">
+                <header class="mock-dash-header">
+                  <h2>Painel Administrativo</h2>
+                  <div class="mock-header-actions">
+                    <span class="badge">🔔</span>
+                    <span class="avatar">👤</span>
+                  </div>
+                </header>
+
+                <!-- Cards row -->
+                <div class="mock-summary-cards">
+                  <div class="mock-card">
+                    <span class="card-label">Agendamentos hoje</span>
+                    <span class="card-value text-accent">12</span>
+                  </div>
+                  <div class="mock-card">
+                    <span class="card-label">Agendamentos próximos</span>
+                    <span class="card-value text-success">24</span>
+                  </div>
+                  <div class="mock-card">
+                    <span class="card-label">Clientes cadastrados</span>
+                    <span class="card-value text-warning">65</span>
+                  </div>
+                  <div class="mock-card">
+                    <span class="card-label">Serviços ativos</span>
+                    <span class="card-value text-info">8</span>
+                  </div>
+                </div>
+
+                <!-- Table -->
+                <section class="mock-table-section">
+                  <h3>Próximos agendamentos</h3>
+                  <div class="table-container">
+                    <table class="mock-table">
+                      <thead>
+                        <tr>
+                          <th>Horário</th>
+                          <th>Cliente</th>
+                          <th>Serviço</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><strong>09:00</strong></td>
+                          <td>Carlos Silva</td>
+                          <td><span class="tag tag-service">Corte de Cabelo</span></td>
+                        </tr>
+                        <tr>
+                          <td><strong>10:30</strong></td>
+                          <td>Ana Oliveira</td>
+                          <td><span class="tag tag-service">Coloração</span></td>
+                        </tr>
+                        <tr>
+                          <td><strong>14:00</strong></td>
+                          <td>João Santos</td>
+                          <td><span class="tag tag-service">Manicure</span></td>
+                        </tr>
+                        <tr>
+                          <td><strong>16:15</strong></td>
+                          <td>Maria Pereira</td>
+                          <td><span class="tag tag-service">Barba</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <span class="mock-view-all">Ver todos</span>
+                </section>
+              </main>
+
+            </div>
+            <!-- Keyboard/Base of notebook -->
+            <div class="laptop-base">
+              <div class="base-top"></div>
+              <div class="base-lip"></div>
+            </div>
+          </div>
+
+          <!-- Smartphone Device -->
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="phone-header">
+                <span class="phone-back">←</span>
+                <h2>Novo Agendamento</h2>
+              </div>
+              <div class="phone-content">
+                <div class="phone-field">
+                  <label>Escolha o serviço</label>
+                  <div class="phone-select">Corte de Cabelo <span class="arrow">▼</span></div>
+                </div>
+                <div class="phone-field">
+                  <label>Escolha o profissional</label>
+                  <div class="phone-select">Carlos Silva <span class="arrow">▼</span></div>
+                </div>
+                <div class="phone-field">
+                  <label>Data</label>
+                  <div class="phone-select">23/06/2026 <span class="calendar-icon">📅</span></div>
+                </div>
+                <div class="phone-field">
+                  <label>Horário disponível</label>
+                  <div class="phone-slots">
+                    <span class="slot">09:00</span>
+                    <span class="slot active">10:00</span>
+                    <span class="slot">11:00</span>
+                    <span class="slot">14:00</span>
+                    <span class="slot">15:00</span>
+                    <span class="slot">16:00</span>
+                  </div>
+                </div>
+                <button class="phone-btn">Confirmar Agendamento</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
-      <div *ngIf="!isLoading && availableServices.length === 0" class="empty-state">
-        Nenhum serviço disponível no momento.
+      <!-- Right Column: Benefits list -->
+      <div class="grid-right">
+        
+        <!-- Clients benefits -->
+        <div class="benefit-card">
+          <div class="benefit-header">
+            <div class="header-icon">👥</div>
+            <h2>PARA OS CLIENTES</h2>
+          </div>
+          <div class="benefit-body">
+            
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="item-text">
+                <h3>Mais praticidade</h3>
+                <p>Agendamento rápido e acessível a qualquer hora.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              </div>
+              <div class="item-text">
+                <h3>Mais confiabilidade</h3>
+                <p>Confirmação imediata e lembretes automáticos.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </div>
+              <div class="item-text">
+                <h3>Mais transparência</h3>
+                <p>Visualização de serviços, preços e horários disponíveis.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </div>
+              <div class="item-text">
+                <h3>Organização</h3>
+                <p>Histórico de agendamentos em um só lugar.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Providers benefits -->
+        <div class="benefit-card">
+          <div class="benefit-header">
+            <div class="header-icon">💼</div>
+            <h2>PARA OS PRESTADORES DE SERVIÇO</h2>
+          </div>
+          <div class="benefit-body">
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M9 16l2 2 4-4"></path></svg>
+              </div>
+              <div class="item-text">
+                <h3>Gestão eficiente da agenda</h3>
+                <p>Controle de horários e evita conflitos de agendamentos.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              </div>
+              <div class="item-text">
+                <h3>Relatórios e estatísticas</h3>
+                <p>Acompanhamento do desempenho do negócio.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div class="item-text">
+                <h3>Controle de disponibilidade</h3>
+                <p>Bloqueio ou liberação de horários de forma prática.</p>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="item-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              </div>
+              <div class="item-text">
+                <h3>Melhor comunicação</h3>
+                <p>Notificações e atualizações automáticas com clientes.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
-      <ul class="services-list" *ngIf="!isLoading && availableServices.length > 0">
-        <li *ngFor="let service of availableServices" class="service-item">
-          <div class="service-info">
-            <h4>{{ service.name }}</h4>
-            <p>{{ service.description }}</p>
-          </div>
-          <div class="service-meta">
-            <span class="price">R$ {{ service.price }}</span>
-            <span class="duration">{{ service.durationMinutes }} min</span>
-          </div>
-        </li>
-      </ul>
     </div>
+
+    <!-- Bottom Flow Section -->
+    <footer class="slide-footer">
+      <div class="footer-title">
+        <svg class="target-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <h2>IMPACTO ESPERADO</h2>
+      </div>
+      
+      <div class="flow-wrapper">
+        
+        <div class="flow-step">
+          <div class="step-badge">1</div>
+          <span class="step-label">Cliente acessa o sistema</span>
+        </div>
+        
+        <div class="flow-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-badge">2</div>
+          <span class="step-label">Escolhe serviço e horário</span>
+        </div>
+        
+        <div class="flow-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-badge">3</div>
+          <span class="step-label">Agendamento confirmado</span>
+        </div>
+        
+        <div class="flow-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-badge">4</div>
+          <span class="step-label">Lembrete automático</span>
+        </div>
+        
+        <div class="flow-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-badge">5</div>
+          <span class="step-label">Serviço realizado com sucesso</span>
+        </div>
+
+      </div>
+    </footer>
+
   </div>
 </div>
