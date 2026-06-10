@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthRequest, AuthResponse, RecoveryPassword } from './auth.model';
+import { AuthRequest, AuthResponse, RecoveryPassword, RecoveryConfirm, RecoveryResponse } from './auth.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -21,9 +21,12 @@ export class AuthenticationService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, request);
   }
 
-  passwordRecovery(request: RecoveryPassword): Observable<void> {
-    // Caso ainda não exista na API real, mantivemos a base URL
-    return this.http.post<void>(`${this.apiUrl}/recovery`, request);
+  passwordRecovery(request: RecoveryPassword): Observable<RecoveryResponse> {
+    return this.http.post<RecoveryResponse>(`${this.apiUrl}/recovery`, request);
+  }
+
+  confirmPasswordRecovery(request: RecoveryConfirm): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/recovery/confirm`, request);
   }
 
   refresh(refreshToken: string): Observable<AuthResponse> {
