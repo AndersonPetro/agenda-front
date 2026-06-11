@@ -72,6 +72,7 @@
             <table class="data-table">
               <thead>
                 <tr>
+                  <th>Data</th>
                   <th>Horário</th>
                   <th>Cliente</th>
                   <th>Serviço</th>
@@ -79,14 +80,23 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let appt of appointments">
+                <tr *ngFor="let appt of paginatedDashboardAppts">
+                  <td>{{ appt.date }}</td>
                   <td><strong>{{ appt.time }}</strong></td>
                   <td>{{ appt.client }}</td>
                   <td><span class="service-badge">{{ appt.service }}</span></td>
-                  <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'">{{ appt.status }}</span></td>
+                  <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'" [class.cancelled]="appt.status === 'Cancelado'">{{ appt.status }}</span></td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination Controls -->
+          <div class="pagination-controls">
+            <button (click)="dashboardApptsPage = 1" [disabled]="dashboardApptsPage === 1" class="btn-page">Primeira</button>
+            <button (click)="dashboardApptsPage = dashboardApptsPage - 1" [disabled]="dashboardApptsPage === 1" class="btn-page">Anterior</button>
+            <span class="page-info">Página {{ dashboardApptsPage }} de {{ totalDashboardApptsPages }}</span>
+            <button (click)="dashboardApptsPage = dashboardApptsPage + 1" [disabled]="dashboardApptsPage === totalDashboardApptsPages" class="btn-page">Próxima</button>
+            <button (click)="dashboardApptsPage = totalDashboardApptsPages" [disabled]="dashboardApptsPage === totalDashboardApptsPages" class="btn-page">Última</button>
           </div>
         </section>
 
@@ -118,6 +128,7 @@
           <table class="data-table">
             <thead>
               <tr>
+                <th>Data</th>
                 <th>Horário</th>
                 <th>Cliente</th>
                 <th>Serviço</th>
@@ -126,20 +137,30 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let appt of appointments">
+              <tr *ngFor="let appt of paginatedControlAppts">
+                <td>{{ appt.date }}</td>
                 <td><strong>{{ appt.time }}</strong></td>
                 <td>{{ appt.client }}</td>
                 <td><span class="service-badge">{{ appt.service }}</span></td>
-                <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'">{{ appt.status }}</span></td>
+                <td><span class="status-badge" [class.pending]="appt.status === 'Pendente'" [class.cancelled]="appt.status === 'Cancelado'">{{ appt.status }}</span></td>
                 <td>
                   <div class="action-buttons">
-                    <button class="btn-action success">✓ Confirmar</button>
-                    <button class="btn-action danger">✗ Cancelar</button>
+                    <button *ngIf="appt.status === 'Pendente'" class="btn-action success" (click)="confirmAppointment(appt)">✓ Confirmar</button>
+                    <button *ngIf="appt.status !== 'Cancelado'" class="btn-action danger" (click)="cancelAppointment(appt)">✗ Cancelar</button>
+                    <span *ngIf="appt.status === 'Cancelado'">-</span>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button (click)="controlApptsPage = 1" [disabled]="controlApptsPage === 1" class="btn-page">Primeira</button>
+          <button (click)="controlApptsPage = controlApptsPage - 1" [disabled]="controlApptsPage === 1" class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ controlApptsPage }} de {{ totalControlApptsPages }}</span>
+          <button (click)="controlApptsPage = controlApptsPage + 1" [disabled]="controlApptsPage === totalControlApptsPages" class="btn-page">Próxima</button>
+          <button (click)="controlApptsPage = totalControlApptsPages" [disabled]="controlApptsPage === totalControlApptsPages" class="btn-page">Última</button>
         </div>
       </section>
     </div>
@@ -149,7 +170,7 @@
       <section class="glass-card">
         <div class="section-header">
           <h2>Catálogo de Serviços</h2>
-          <button class="btn-primary-small">+ Adicionar Serviço</button>
+          <button (click)="openServiceModal()" class="btn-primary-small">+ Adicionar Serviço</button>
         </div>
         <div class="table-wrapper">
           <table class="data-table">
@@ -159,24 +180,34 @@
                 <th>Categoria</th>
                 <th>Duração</th>
                 <th>Valor</th>
+                <th>Funcionário</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let service of services">
+              <tr *ngFor="let service of paginatedServices">
                 <td><strong>{{ service.name }}</strong></td>
                 <td>{{ service.category }}</td>
                 <td>{{ service.duration }}</td>
                 <td>{{ service.price }}</td>
+                <td>{{ service.funcionario }}</td>
                 <td>
                   <div class="action-buttons">
-                    <button class="btn-action">Editar</button>
-                    <button class="btn-action danger">Excluir</button>
+                    <button (click)="openEditServiceModal(service)" class="btn-action">Editar</button>
+                    <button (click)="deleteService(service)" class="btn-action danger">Excluir</button>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button (click)="servicesPage = 1" [disabled]="servicesPage === 1" class="btn-page">Primeira</button>
+          <button (click)="servicesPage = servicesPage - 1" [disabled]="servicesPage === 1" class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ servicesPage }} de {{ totalServicesPages }}</span>
+          <button (click)="servicesPage = servicesPage + 1" [disabled]="servicesPage === totalServicesPages" class="btn-page">Próxima</button>
+          <button (click)="servicesPage = totalServicesPages" [disabled]="servicesPage === totalServicesPages" class="btn-page">Última</button>
         </div>
       </section>
     </div>
@@ -196,6 +227,7 @@
                 <th>E-mail</th>
                 <th>Telefone</th>
                 <th>Cadastro</th>
+                <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -205,10 +237,10 @@
                 <td>{{ client.email }}</td>
                 <td>{{ client.phone }}</td>
                 <td>{{ client.joined }}</td>
+                <td><span class="status-badge" [class.cancelled]="client.status === 'Bloqueado'">{{ client.status || 'Ativo' }}</span></td>
                 <td>
                   <div class="action-buttons">
-                    <button class="btn-action">Ficha</button>
-                    <button class="btn-action danger">Bloquear</button>
+                    <button (click)="openEditClientModal(client)" class="btn-action">Atualizar</button>
                   </div>
                 </td>
               </tr>
@@ -258,4 +290,96 @@
     </div>
 
   </main>
+
+  <!-- Modal: Adicionar Serviço -->
+  <div *ngIf="showServiceModal" class="modal-overlay">
+    <div class="modal-card">
+      <h3>{{ isEditMode ? 'Editar Serviço' : 'Adicionar Novo Serviço' }}</h3>
+      <form (submit)="addService(); $event.preventDefault()">
+        <div class="form-group">
+          <label>Nome do Serviço</label>
+          <select [(ngModel)]="newService.name" name="name" class="form-control" required>
+            <option value="" disabled selected>Selecione um serviço...</option>
+            <option value="Corte de Cabelo">Corte de Cabelo</option>
+            <option value="Coloração">Coloração</option>
+            <option value="Manicure">Manicure</option>
+            <option value="Pedicure">Pedicure</option>
+            <option value="Barba">Barba</option>
+            <option value="Sobrancelha">Sobrancelha</option>
+            <option value="Depilação">Depilação</option>
+            <option value="Escova / Progressiva">Escova / Progressiva</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select [(ngModel)]="newService.category" name="category" class="form-control" required>
+            <option value="" disabled selected>Selecione uma categoria...</option>
+            <option value="Cabelo">Cabelo</option>
+            <option value="Unhas">Unhas</option>
+            <option value="Barba">Barba</option>
+            <option value="Estética">Estética</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Duração</label>
+          <input type="text" [(ngModel)]="newService.duration" name="duration" class="form-control" placeholder="Ex: 30 min" required>
+        </div>
+        <div class="form-group">
+          <label>Valor</label>
+          <input type="text" [(ngModel)]="newService.price" name="price" class="form-control" placeholder="Ex: R$ 50,00" required>
+        </div>
+        <div class="form-group">
+          <label>Funcionário</label>
+          <select [(ngModel)]="newService.funcionario" name="funcionario" class="form-control" required>
+            <option value="" disabled selected>Selecione um funcionário...</option>
+            <option value="Carlos">Carlos</option>
+            <option value="Ana">Ana</option>
+            <option value="João">João</option>
+            <option value="Maria">Maria</option>
+            <option value="Pedro">Pedro</option>
+            <option value="Lucas">Lucas</option>
+            <option value="Mariana">Mariana</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" (click)="closeServiceModal()" class="btn-action">Cancelar</button>
+          <button type="submit" class="btn-primary-small">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Cliente -->
+  <div *ngIf="showClientModal" class="modal-overlay">
+    <div class="modal-card">
+      <h3>Atualizar Cliente</h3>
+      <form (submit)="updateClient(); $event.preventDefault()">
+        <div class="form-group">
+          <label>Nome do Cliente</label>
+          <input type="text" [(ngModel)]="newClientData.name" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" [(ngModel)]="newClientData.email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" [(ngModel)]="newClientData.phone" name="phone" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <div class="toggle-container">
+            <span class="toggle-label">Status: <strong [style.color]="newClientData.status === 'Bloqueado' ? '#ef4444' : '#10b981'">{{ newClientData.status }}</strong></span>
+            <label class="switch">
+              <input type="checkbox" [checked]="newClientData.status === 'Ativo'" (change)="toggleClientStatus($event)">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" (click)="closeClientModal()" class="btn-action">Cancelar</button>
+          <button type="submit" class="btn-primary-small">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

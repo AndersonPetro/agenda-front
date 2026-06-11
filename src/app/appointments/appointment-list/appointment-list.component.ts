@@ -32,7 +32,7 @@ import { AuthService } from '../../core/integration/auth/auth.service';
         </div>
         
         <div class="appt-details">
-          <h4>{{ appt.service?.name || 'Serviço' }}</h4>
+          <h4>{{ appt.serviceName || appt.service?.name || 'Serviço' }}</h4>
           <p class="status-badge" [ngClass]="appt.status.toLowerCase()">
             {{ getStatusText(appt.status) }}
           </p>
