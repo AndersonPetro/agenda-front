@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/integration/auth/auth.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../../core/integration/user/user.service';
 import { AppointmentService } from '../../../core/integration/appointment/appointment.service';
+import { ServiceService } from '../../../core/integration/service.service';
 import { MaterialModule } from '../../../material/material.module';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 
@@ -23,6 +24,7 @@ export class UserAgendamentosComponent implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
   private appointmentService = inject(AppointmentService);
+  private serviceService = inject(ServiceService);
 
   userName = '';
   successMsg = '';
@@ -49,11 +51,11 @@ export class UserAgendamentosComponent implements OnInit {
   selectedSlot = '';
 
   // Options
-  services = [
-    { id: 1, name: 'Corte de Cabelo', duration: '30 min', price: 'R$ 50,00', category: 'Cabelo' },
-    { id: 2, name: 'Coloração', duration: '90 min', price: 'R$ 150,00', category: 'Cabelo' },
-    { id: 3, name: 'Manicure', duration: '45 min', price: 'R$ 40,00', category: 'Unhas' },
-    { id: 4, name: 'Barba', duration: '30 min', price: 'R$ 35,00', category: 'Barba' }
+  services: any[] = [
+    { id: '1', name: 'Corte de Cabelo', duration: '30 min', price: 'R$ 50,00', category: 'Cabelo' },
+    { id: '2', name: 'Coloração', duration: '90 min', price: 'R$ 150,00', category: 'Cabelo' },
+    { id: '3', name: 'Manicure', duration: '45 min', price: 'R$ 40,00', category: 'Unhas' },
+    { id: '4', name: 'Barba', duration: '30 min', price: 'R$ 35,00', category: 'Barba' }
   ];
 
   professionals = [
@@ -62,14 +64,10 @@ export class UserAgendamentosComponent implements OnInit {
     'Marcos Souza (Manicure/Pedicure)'
   ];
 
-  availableSlots = [
-    '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'
-  ];
+  availableSlots: string[] = [];
 
   // Scheduled appointments tracking
-  myAppointments: any[] = [
-    { id: 101, service: 'Corte de Cabelo', date: '15/06/2026', time: '10:00', professional: 'Carlos Silva', status: 'Agendado' }
-  ];
+  myAppointments: any[] = [];
 
   ngOnInit() {
     const user = this.authService.getUser();
@@ -79,6 +77,12 @@ export class UserAgendamentosComponent implements OnInit {
       this.profileData.email = user.email || '';
       this.profileData.phone = user.phone || '';
     }
+    this.loadServices();
+    this.loadAppointments();
+
+    this.appointmentService.appointmentCreated$.subscribe(() => {
+      this.loadAppointments();
+    });
   }
 
   selectTab(tabName: string) {
