@@ -2,19 +2,28 @@
 
 :root {
   /* Color Palette - Dark Premium Theme */
-  --bg-primary: #0f172a; /* Slate 900 */
-  --bg-secondary: #1e293b; /* Slate 800 */
-  --text-primary: #f8fafc; /* Slate 50 */
-  --text-secondary: #94a3b8; /* Slate 400 */
-  
-  --accent-primary: #6366f1; /* Indigo 500 */
-  --accent-hover: #4f46e5; /* Indigo 600 */
+  --bg-primary: #0f172a;
+  /* Slate 900 */
+  --bg-secondary: hsl(217, 33%, 17%);
+  /* Slate 800 */
+  --text-primary: #d8dee7;
+  /* Slate 50 */
+  --text-secondary: #94a3b8;
+  /* Slate 400 */
+
+  --text-primary1: #d8dee7;
+
+  --accent-primary: #6366f1;
+  /* Indigo 500 */
+  --accent-hover: #4f46e5;
+  /* Indigo 600 */
   --accent-glow: rgba(99, 102, 241, 0.5);
 
   --success: #10b981;
   --danger: #ef4444;
 
-  --border-color: #334155; /* Slate 700 */
+  --border-color: #334155;
+  /* Slate 700 */
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -48,7 +57,9 @@ a:hover {
 }
 
 /* Premium Inputs */
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   background-color: var(--bg-primary);
@@ -59,7 +70,9 @@ input, select, textarea {
   transition: all 0.3s ease;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);

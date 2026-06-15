@@ -74,7 +74,7 @@ export class AccessDeniedComponent implements OnInit {
         this.redirectLink = '/admin/dashboard';
         this.buttonText = 'Voltar para o Painel';
       } else if (this.authService.hasRole('CLIENTE')) {
-        this.redirectLink = '/cliente/agendamentos';
+        this.redirectLink = '/user/agendamentos';
         this.buttonText = 'Voltar para Agendamentos';
       }
     }

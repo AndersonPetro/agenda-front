@@ -38,8 +38,8 @@ export const routes: Routes = [
     data: { role: 'ADMIN' }
   },
   {
-    path: 'cliente/agendamentos',
-    loadComponent: () => import('./features/cliente/agendamentos/cliente-agendamentos.component').then(m => m.ClienteAgendamentosComponent),
+    path: 'user/agendamentos',
+    loadComponent: () => import('./features/user/agendamentos/user-agendamentos.component').then(m => m.UserAgendamentosComponent),
     canActivate: [roleGuard],
     data: { role: 'CLIENTE' }
   },

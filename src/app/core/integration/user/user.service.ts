@@ -10,7 +10,7 @@ import { environment } from '../../../../environments/environment';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getUsers(page: number = 0, size: number = 10, searchTerm?: string): Observable<PaginatedUsersResponse> {
     let params = new HttpParams()

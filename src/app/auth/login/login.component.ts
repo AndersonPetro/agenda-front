@@ -119,7 +119,7 @@ export class LoginComponent {
           if (this.authService.hasRole('ADMIN')) {
             this.router.navigate(['/admin/dashboard']);
           } else if (this.authService.hasRole('CLIENTE')) {
-            this.router.navigate(['/cliente/agendamentos']);
+            this.router.navigate(['/user/agendamentos']);
           } else {
             this.router.navigate(['/appointments']);
           }

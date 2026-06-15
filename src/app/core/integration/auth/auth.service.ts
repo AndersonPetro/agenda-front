@@ -153,6 +153,9 @@ export class AuthService {
 
   hasRole(role: string): boolean {
     const roles = this.getUserRoles().map(r => r.toUpperCase());
+    if (role.toUpperCase() === 'CLIENTE') {
+      return roles.includes('CLIENTE') || (this.isAuthenticated() && !roles.includes('ADMIN'));
+    }
     return roles.includes(role.toUpperCase());
   }
 }
