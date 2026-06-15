@@ -39,7 +39,7 @@ import { AuthService } from '../../core/integration/auth/auth.service';
           <p class="notes" *ngIf="appt.notes">📝 {{ appt.notes }}</p>
         </div>
 
-        <div class="appt-actions" *ngIf="appt.status === 'SCHEDULED'">
+        <div class="appt-actions" *ngIf="appt.status === 'SCHEDULED' || appt.status === 'PENDING' || appt.status === 'CONFIRMED'">
           <button class="btn-secondary cancel-btn" (click)="cancel(appt.id)">Cancelar</button>
         </div>
       </div>
@@ -72,6 +72,8 @@ import { AuthService } from '../../core/integration/auth/auth.service';
       gap: 1.5rem;
       border-left: 4px solid var(--accent-primary);
     }
+    .appointment-card.pending { border-left-color: #f59e0b; }
+    .appointment-card.confirmed { border-left-color: var(--success); }
     .appointment-card.cancelled { border-left-color: var(--danger); opacity: 0.7; }
     .appointment-card.completed { border-left-color: var(--success); }
 
@@ -100,7 +102,9 @@ import { AuthService } from '../../core/integration/auth/auth.service';
       text-transform: uppercase;
       background: var(--bg-primary);
     }
+    .status-badge.pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
     .status-badge.scheduled { background: rgba(99, 102, 241, 0.1); color: var(--accent-primary); }
+    .status-badge.confirmed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
     .status-badge.completed { background: rgba(16, 185, 129, 0.1); color: var(--success); }
     .status-badge.cancelled { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
@@ -129,10 +133,18 @@ export class AppointmentListComponent implements OnInit {
     if (userId) {
       this.appointmentService.getUserAppointments(userId).subscribe({
         next: (data) => {
-          this.appointments = data.sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+          const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
+            .filter((a: any) => a.userId === userId);
+          const merged = [...data, ...mockAppts];
+          this.appointments = merged.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
           this.isLoading = false;
         },
-        error: () => this.isLoading = false
+        error: () => {
+          const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
+            .filter((a: any) => a.userId === userId);
+          this.appointments = mockAppts.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+          this.isLoading = false;
+        }
       });
     }
   }
@@ -140,6 +152,7 @@ export class AppointmentListComponent implements OnInit {
   getStatusText(status: string): string {
     const statusMap: any = {
       'SCHEDULED': 'Agendado',
+      'PENDING': 'Pendente',
       'COMPLETED': 'Concluído',
       'CANCELLED': 'Cancelado',
       'CONFIRMED': 'Confirmado'
@@ -149,9 +162,21 @@ export class AppointmentListComponent implements OnInit {
 
   cancel(id: string) {
     if (confirm('Deseja realmente cancelar este agendamento?')) {
-      this.appointmentService.cancelAppointment(id).subscribe(() => {
+      if (typeof id === 'string' && id.startsWith('mock_')) {
+        let mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]');
+        mockAppts = mockAppts.map((a: any) => {
+          if (a.id === id) {
+            a.status = 'CANCELLED';
+          }
+          return a;
+        });
+        localStorage.setItem('mock_appointments', JSON.stringify(mockAppts));
         this.loadAppointments();
-      });
+      } else {
+        this.appointmentService.cancelAppointment(id).subscribe(() => {
+          this.loadAppointments();
+        });
+      }
     }
   }
 }

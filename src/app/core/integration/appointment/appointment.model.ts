@@ -17,7 +17,7 @@ export interface AppointmentResponse {
   serviceName: string;
   userName: string;
   scheduledAt: string; // ISO 8601 LocalDateTime
-  status: 'SCHEDULED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; 
+  status: 'PENDING' | 'SCHEDULED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; 
   notes?: string;
   createdAt: string; // ISO 8601 LocalDateTime
   updatedAt: string; // ISO 8601 LocalDateTime

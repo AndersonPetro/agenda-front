@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ServiceService } from '../../service.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-service-list',
@@ -10,13 +11,13 @@ import { ServiceService } from '../../service.service';
   template: `
     <div class="page-header">
       <div>
-        <h2>Gerenciamento de Serviços</h2>
-        <p class="subtitle">Adicione ou remova serviços disponíveis na clínica.</p>
+        <h2>{{ isAdmin ? 'Gerenciamento de Serviços' : 'Serviços Disponíveis' }}</h2>
+        <p class="subtitle">{{ isAdmin ? 'Adicione ou remova serviços disponíveis na clínica.' : 'Confira os serviços oferecidos e agende o seu atendimento.' }}</p>
       </div>
-      <button class="btn-primary" (click)="toggleForm()">{{ showForm ? 'Cancelar' : 'Novo Serviço' }}</button>
+      <button *ngIf="isAdmin" class="btn-primary" (click)="toggleForm()">{{ showForm ? 'Cancelar' : 'Novo Serviço' }}</button>
     </div>
 
-    <div *ngIf="showForm" class="glass-card mb-4 slide-down">
+    <div *ngIf="showForm && isAdmin" class="glass-card mb-4 slide-down">
       <h3>Adicionar Novo Serviço</h3>
       <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()">
         <div class="form-row">
@@ -57,7 +58,7 @@ import { ServiceService } from '../../service.service';
         <p class="description">{{ service.description }}</p>
         <div class="service-footer">
           <span class="duration">⏱ {{ service.durationMinutes }} min</span>
-          <button class="btn-icon delete" (click)="deleteService(service.id)" title="Remover">
+          <button *ngIf="isAdmin" class="btn-icon delete" (click)="deleteService(service.id)" title="Remover">
             Excluir
           </button>
         </div>
@@ -124,12 +125,14 @@ import { ServiceService } from '../../service.service';
 })
 export class ServiceListComponent implements OnInit {
   private serviceService = inject(ServiceService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   services: any[] = [];
   isLoading = true;
   showForm = false;
   isSubmitting = false;
+  isAdmin = false;
 
   serviceForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
@@ -139,6 +142,7 @@ export class ServiceListComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.isAdmin = this.authService.hasRole('ADMIN');
     this.loadServices();
   }
 

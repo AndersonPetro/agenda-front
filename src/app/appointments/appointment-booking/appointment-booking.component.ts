@@ -207,6 +207,24 @@ export class AppointmentBookingComponent implements OnInit {
         },
         error: () => {
           this.isSubmitting = false;
+
+          const serviceObj = this.services.find(s => String(s.id) === String(formValue.serviceId));
+          const mockAppt = {
+            id: 'mock_' + Date.now(),
+            userId: userId,
+            serviceId: formValue.serviceId,
+            serviceName: serviceObj ? serviceObj.name : 'Serviço',
+            scheduledAt: scheduledAt,
+            status: 'CONFIRMED',
+            notes: formValue.notes,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          const existingMock = JSON.parse(localStorage.getItem('mock_appointments') || '[]');
+          existingMock.push(mockAppt);
+          localStorage.setItem('mock_appointments', JSON.stringify(existingMock));
+
           alert('Agendamento criado com sucesso (Modo offline/Mock)!');
           this.router.navigate(['/appointments']);
         }

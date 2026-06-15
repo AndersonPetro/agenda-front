@@ -261,12 +261,80 @@
 
     <!-- Tab: Relatórios -->
     <div *ngIf="activeTab === 'Relatórios'" class="tab-content">
-      <section class="glass-card">
-        <h2>Relatórios de Desempenho</h2>
-        <p class="description">Consulte dados estatísticos e financeiros do sistema.</p>
-        <div class="reports-placeholder">
-          <span class="icon-big">📈</span>
-          <p>Estatísticas de agendamento e faturamento estarão disponíveis em breve.</p>
+      <!-- Indicators Row for Reports -->
+      <section class="indicators-grid">
+        <div class="indicator-card glass-card card-hover">
+          <div class="card-icon-wrapper blue-icon">📅</div>
+          <div class="card-info">
+            <span class="indicator-label">Total de Agendamentos</span>
+            <span class="indicator-value text-accent">{{ serviceStats.totalBookings }}</span>
+            <span class="indicator-subtext">Excluindo cancelados</span>
+          </div>
+        </div>
+        <div class="indicator-card glass-card card-hover">
+          <div class="card-icon-wrapper green-icon">💰</div>
+          <div class="card-info">
+            <span class="indicator-label">Faturamento Estimado</span>
+            <span class="indicator-value text-success">{{ serviceStats.totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}</span>
+            <span class="indicator-subtext">Apenas confirmados</span>
+          </div>
+        </div>
+        <div class="indicator-card glass-card card-hover">
+          <div class="card-icon-wrapper orange-icon">★</div>
+          <div class="card-info">
+            <span class="indicator-label">Serviço Mais Procurado</span>
+            <span class="indicator-value text-warning service-name-value">{{ serviceStats.mostPopularService }}</span>
+            <span class="indicator-subtext">Maior volume de agendamentos</span>
+          </div>
+        </div>
+        <div class="indicator-card glass-card card-hover">
+          <div class="card-icon-wrapper cyan-icon">🎟️</div>
+          <div class="card-info">
+            <span class="indicator-label">Ticket Médio</span>
+            <span class="indicator-value text-info">{{ serviceStats.avgTicket.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}</span>
+            <span class="indicator-subtext">Por agendamento ativo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Performance Details -->
+      <section class="grid-section glass-card">
+        <div class="reports-header">
+          <h2>Desempenho por Serviço</h2>
+          <p class="description">Consulte dados estatísticos detalhados de faturamento, volume e popularidade de cada serviço.</p>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Serviço</th>
+                <th>Categoria</th>
+                <th>Preço Unitário</th>
+                <th class="text-center">Total Agendados</th>
+                <th class="text-center">Confirmados</th>
+                <th>Faturamento Estimado</th>
+                <th style="width: 260px;">Popularidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let service of serviceStats.list">
+                <td><strong>{{ service.name }}</strong></td>
+                <td><span class="category-badge">{{ service.category }}</span></td>
+                <td><strong>{{ service.price }}</strong></td>
+                <td class="text-center font-semibold">{{ service.count }}</td>
+                <td class="text-center text-success font-semibold">{{ service.confirmedCount }}</td>
+                <td class="text-success font-bold">{{ service.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}</td>
+                <td>
+                  <div class="popularity-container">
+                    <div class="progress-bar-container">
+                      <div class="progress-bar-fill" [style.width.%]="service.percentage"></div>
+                    </div>
+                    <span class="popularity-percentage">{{ service.percentage | number:'1.0-1' }}%</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

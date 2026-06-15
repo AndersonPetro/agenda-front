@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/integration/auth/auth.service';
 import { Router } from '@angular/router';
+import { UserService } from '../../../core/integration/user/user.service';
+import { AppointmentService } from '../../../core/integration/appointment/appointment.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -11,20 +13,22 @@ import { Router } from '@angular/router';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private userService = inject(UserService);
+  private appointmentService = inject(AppointmentService);
 
   activeTab: string = 'Dashboard';
   
   // Indicators
   todayCount = 12;
   upcomingCount = 24;
-  clientCount = 65;
+  clientCount = 0;
   serviceCount = 8;
 
   // Upcoming appointments
-  appointments = [
+  staticAppointments = [
     { date: '11/06/2026', time: '09:00', client: 'Carlos Silva', service: 'Corte de Cabelo', status: 'Confirmado' },
     { date: '11/06/2026', time: '10:30', client: 'Ana Oliveira', service: 'Coloração', status: 'Confirmado' },
     { date: '12/06/2026', time: '14:00', client: 'João Santos', service: 'Manicure', status: 'Pendente' },
@@ -33,6 +37,8 @@ export class AdminDashboardComponent {
     { date: '13/06/2026', time: '11:00', client: 'Lucas Costa', service: 'Barba', status: 'Pendente' },
     { date: '14/06/2026', time: '15:00', client: 'Mariana Lima', service: 'Manicure', status: 'Confirmado' }
   ];
+
+  appointments: any[] = [];
 
   // Pagination for Dashboard (Próximos Agendamentos)
   dashboardApptsPage: number = 1;
@@ -50,22 +56,8 @@ export class AdminDashboardComponent {
   pageSize: number = 5;
   searchTerm: string = '';
 
-  // Registered Clients
-  clients = [
-    { name: 'Carlos Silva', email: 'carlos@test.com', phone: '(11) 98765-4321', joined: '10/05/2026', status: 'Ativo' },
-    { name: 'Ana Oliveira', email: 'ana@test.com', phone: '(11) 91234-5678', joined: '14/05/2026', status: 'Ativo' },
-    { name: 'João Santos', email: 'joao@test.com', phone: '(11) 95555-4444', joined: '19/05/2026', status: 'Ativo' },
-    { name: 'Maria Pereira', email: 'maria@test.com', phone: '(11) 96666-7777', joined: '22/05/2026', status: 'Ativo' },
-    { name: 'Pedro Souza', email: 'pedro@test.com', phone: '(11) 94444-3333', joined: '25/05/2026', status: 'Ativo' },
-    { name: 'Lucas Costa', email: 'lucas@test.com', phone: '(11) 92222-1111', joined: '28/05/2026', status: 'Ativo' },
-    { name: 'Mariana Lima', email: 'mariana@test.com', phone: '(11) 93333-2222', joined: '01/06/2026', status: 'Ativo' },
-    { name: 'Juliana Rocha', email: 'juliana@test.com', phone: '(11) 97777-8888', joined: '02/06/2026', status: 'Ativo' },
-    { name: 'Felipe Alves', email: 'felipe@test.com', phone: '(11) 96666-5555', joined: '03/06/2026', status: 'Ativo' },
-    { name: 'Patricia Dias', email: 'patricia@test.com', phone: '(11) 98888-9999', joined: '04/06/2026', status: 'Ativo' },
-    { name: 'Gabriel Martins', email: 'gabriel@test.com', phone: '(11) 91111-2222', joined: '05/06/2026', status: 'Ativo' },
-    { name: 'Amanda Gomes', email: 'amanda@test.com', phone: '(11) 93333-4444', joined: '06/06/2026', status: 'Ativo' },
-    { name: 'Bruno Barbosa', email: 'bruno@test.com', phone: '(11) 95555-6666', joined: '07/06/2026', status: 'Ativo' }
-  ];
+  // Registered Clients (Loaded dynamically)
+  clients: any[] = [];
 
   get totalDashboardApptsPages(): number {
     const total = Math.ceil(this.appointments.length / this.dashboardApptsPageSize);
@@ -148,11 +140,49 @@ export class AdminDashboardComponent {
   }
 
   confirmAppointment(appt: any) {
-    appt.status = 'Confirmado';
+    if (appt.id) {
+      if (typeof appt.id === 'string' && appt.id.startsWith('mock_')) {
+        let mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]');
+        mockAppts = mockAppts.map((a: any) => {
+          if (a.id === appt.id) {
+            a.status = 'CONFIRMED';
+          }
+          return a;
+        });
+        localStorage.setItem('mock_appointments', JSON.stringify(mockAppts));
+        this.loadAppointments();
+      } else {
+        this.appointmentService.confirmAppointment(appt.id).subscribe({
+          next: () => this.loadAppointments(),
+          error: (err) => console.error('Erro ao confirmar agendamento:', err)
+        });
+      }
+    } else {
+      appt.status = 'Confirmado';
+    }
   }
 
   cancelAppointment(appt: any) {
-    appt.status = 'Cancelado';
+    if (appt.id) {
+      if (typeof appt.id === 'string' && appt.id.startsWith('mock_')) {
+        let mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]');
+        mockAppts = mockAppts.map((a: any) => {
+          if (a.id === appt.id) {
+            a.status = 'CANCELLED';
+          }
+          return a;
+        });
+        localStorage.setItem('mock_appointments', JSON.stringify(mockAppts));
+        this.loadAppointments();
+      } else {
+        this.appointmentService.cancelAppointment(appt.id).subscribe({
+          next: () => this.loadAppointments(),
+          error: (err) => console.error('Erro ao cancelar agendamento:', err)
+        });
+      }
+    } else {
+      appt.status = 'Cancelado';
+    }
   }
 
   // Active Services
@@ -244,9 +274,194 @@ export class AdminDashboardComponent {
 
   updateClient() {
     if (this.editingClientRef) {
-      Object.assign(this.editingClientRef, this.newClientData);
-      this.closeClientModal();
+      const isActive = this.newClientData.status === 'Ativo';
+      this.userService.setUserActive(this.editingClientRef.id, isActive).subscribe({
+        next: () => {
+          const updateData = {
+            name: this.newClientData.name,
+            email: this.newClientData.email,
+            phone: this.newClientData.phone
+          };
+          this.userService.updateUser(this.editingClientRef.id, updateData).subscribe({
+            next: (updatedUser) => {
+              this.editingClientRef.name = updatedUser.name;
+              this.editingClientRef.email = updatedUser.email;
+              this.editingClientRef.phone = updatedUser.phone || '';
+              this.editingClientRef.status = updatedUser.isActive ? 'Ativo' : 'Bloqueado';
+              this.closeClientModal();
+            },
+            error: (err) => {
+              console.error('Erro ao atualizar dados cadastrais do cliente:', err);
+              Object.assign(this.editingClientRef, this.newClientData);
+              this.closeClientModal();
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Erro ao atualizar status do cliente:', err);
+        }
+      });
     }
+  }
+
+  ngOnInit() {
+    this.loadClients();
+  }
+
+  loadClients() {
+    this.userService.getUsers(0, 1000).subscribe({
+      next: (response) => {
+        this.clients = response.content.map(user => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone || '(11) 99999-9999',
+          joined: user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-BR') : '-',
+          status: user.isActive ? 'Ativo' : 'Bloqueado'
+        }));
+        this.clientCount = this.clients.length;
+        this.loadAppointments();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar clientes:', err);
+        this.loadAppointments();
+      }
+    });
+  }
+
+  mapStatusToFrontend(status: string): string {
+    const statusMap: any = {
+      'PENDING': 'Pendente',
+      'SCHEDULED': 'Pendente',
+      'CONFIRMED': 'Confirmado',
+      'COMPLETED': 'Concluído',
+      'CANCELLED': 'Cancelado'
+    };
+    return statusMap[status] || status;
+  }
+
+  loadAppointments() {
+    this.appointmentService.findAll().subscribe({
+      next: (backendData) => {
+        const mappedBackend = backendData.map((a: any) => ({
+          id: a.id,
+          date: new Date(a.scheduledAt).toLocaleDateString('pt-BR'),
+          time: new Date(a.scheduledAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          client: a.userName || 'Cliente',
+          service: a.serviceName || 'Serviço',
+          status: this.mapStatusToFrontend(a.status)
+        }));
+
+        const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]').map((a: any) => {
+          const clientObj = this.clients.find(c => String(c.id) === String(a.userId));
+          const clientName = clientObj ? clientObj.name : 'Cliente MOCK';
+          return {
+            id: a.id,
+            date: new Date(a.scheduledAt).toLocaleDateString('pt-BR'),
+            time: new Date(a.scheduledAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            client: clientName,
+            service: a.serviceName || 'Serviço MOCK',
+            status: this.mapStatusToFrontend(a.status)
+          };
+        });
+
+        this.appointments = [...this.staticAppointments, ...mappedBackend, ...mockAppts];
+        this.upcomingCount = this.appointments.filter(a => a.status === 'Pendente').length;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar agendamentos do backend, carregando mocks:', err);
+        const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]').map((a: any) => {
+          const clientObj = this.clients.find(c => String(c.id) === String(a.userId));
+          const clientName = clientObj ? clientObj.name : 'Cliente MOCK';
+          return {
+            id: a.id,
+            date: new Date(a.scheduledAt).toLocaleDateString('pt-BR'),
+            time: new Date(a.scheduledAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            client: clientName,
+            service: a.serviceName || 'Serviço MOCK',
+            status: this.mapStatusToFrontend(a.status)
+          };
+        });
+
+        this.appointments = [...this.staticAppointments, ...mockAppts];
+        this.upcomingCount = this.appointments.filter(a => a.status === 'Pendente').length;
+      }
+    });
+  }
+
+  private parsePrice(priceStr: string | number): number {
+    if (typeof priceStr === 'number') return priceStr;
+    if (!priceStr) return 0;
+    const cleaned = priceStr.replace('R$', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+
+  get serviceStats() {
+    const statsMap = new Map<string, { count: number; confirmedCount: number; revenue: number }>();
+    
+    // Initialize map for all services in the catalog
+    this.services.forEach(s => {
+      statsMap.set(s.name, { count: 0, confirmedCount: 0, revenue: 0 });
+    });
+
+    let totalBookings = 0;
+    let totalRevenue = 0;
+
+    // Aggregate stats from appointments
+    this.appointments.forEach(appt => {
+      const serviceName = appt.service;
+      const status = appt.status; // 'Confirmado', 'Pendente', 'Cancelado'
+      
+      const serviceObj = this.services.find(s => s.name === serviceName);
+      const priceVal = serviceObj ? this.parsePrice(serviceObj.price) : 0;
+
+      if (!statsMap.has(serviceName)) {
+        statsMap.set(serviceName, { count: 0, confirmedCount: 0, revenue: 0 });
+      }
+
+      const statObj = statsMap.get(serviceName)!;
+      
+      if (status !== 'Cancelado') {
+        statObj.count++;
+        totalBookings++;
+        
+        if (status === 'Confirmado') {
+          statObj.confirmedCount++;
+          statObj.revenue += priceVal;
+          totalRevenue += priceVal;
+        }
+      }
+    });
+
+    // Create the structured list
+    const list = this.services.map(s => {
+      const statObj = statsMap.get(s.name) || { count: 0, confirmedCount: 0, revenue: 0 };
+      const percentage = totalBookings > 0 ? (statObj.count / totalBookings) * 100 : 0;
+      return {
+        name: s.name,
+        category: s.category,
+        price: s.price,
+        count: statObj.count,
+        confirmedCount: statObj.confirmedCount,
+        revenue: statObj.revenue,
+        percentage: percentage
+      };
+    });
+
+    // Sort descending by booking count
+    list.sort((a, b) => b.count - a.count);
+
+    const mostPopular = list.length > 0 && list[0].count > 0 ? list[0].name : 'Nenhum agendamento';
+    const avgTicket = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+
+    return {
+      list,
+      totalBookings,
+      totalRevenue,
+      mostPopularService: mostPopular,
+      avgTicket
+    };
   }
 
   selectTab(tabName: string) {
@@ -258,3 +473,4 @@ export class AdminDashboardComponent {
     this.router.navigate(['/login']);
   }
 }
+

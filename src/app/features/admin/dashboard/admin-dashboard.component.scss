@@ -817,3 +817,165 @@ input:checked + .slider:before {
     border-radius: 50%;
   }
 }
+
+/* Reports Tab Styles */
+.indicator-card {
+  &.card-hover {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+  }
+
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .indicator-subtext {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.1rem;
+  }
+
+  .service-name-value {
+    font-size: 1.15rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.25rem;
+    line-height: 1.2;
+    display: block;
+    max-width: 150px;
+  }
+}
+
+.card-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+
+  &.blue-icon {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+  }
+  &.green-icon {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+  &.orange-icon {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+  &.cyan-icon {
+    background-color: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+  }
+}
+
+.reports-header {
+  margin-bottom: 1.75rem;
+  h2 {
+    margin-bottom: 0.25rem !important;
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.category-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.popularity-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .progress-bar-container {
+    flex-grow: 1;
+    height: 8px;
+    background-color: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+    transition: width 0.6s ease;
+  }
+
+  .popularity-percentage {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    width: 40px;
+    text-align: right;
+  }
+}
+
+/* Specific overrides for reports tab elements under .glass-card rules */
+.glass-card {
+  .indicator-card.card-hover {
+    .indicator-subtext {
+      color: #64748b !important;
+    }
+    .text-accent {
+      color: #2563eb !important;
+    }
+    .text-success {
+      color: #10b981 !important;
+    }
+    .text-warning {
+      color: #f59e0b !important;
+    }
+    .text-info {
+      color: #06b6d4 !important;
+    }
+  }
+
+  .category-badge {
+    color: #475569 !important;
+  }
+
+  .data-table td.text-success {
+    color: #10b981 !important;
+  }
+
+  .popularity-container .popularity-percentage {
+    color: #1e3a8a !important;
+  }
+}
