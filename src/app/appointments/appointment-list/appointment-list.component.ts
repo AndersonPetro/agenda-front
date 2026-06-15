@@ -1,17 +1,23 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/integration/appointment/appointment.service';
 import { AuthService } from '../../core/integration/auth/auth.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AppointmentBookingComponent } from '../appointment-booking/appointment-booking.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatDialogModule],
   providers: [DatePipe],
   template: `
     <div class="page-header">
-      <h2>Meus Agendamentos</h2>
-      <p class="subtitle">Acompanhe seus próximos serviços.</p>
+      <div class="header-left">
+        <h2>Meus Agendamentos</h2>
+        <p class="subtitle">Acompanhe seus próximos serviços.</p>
+      </div>
+      <button class="btn-primary" (click)="openBookingDialog()">Novo Agendamento</button>
     </div>
 
     <div *ngIf="isLoading" class="loading">Carregando agendamentos...</div>
@@ -20,7 +26,7 @@ import { AuthService } from '../../core/integration/auth/auth.service';
       <div class="icon">📅</div>
       <h3>Você ainda não tem agendamentos</h3>
       <p>Que tal marcar um serviço agora?</p>
-      <a href="/book" class="btn-primary mt-2 d-inline-block">Agendar Serviço</a>
+      <button (click)="openBookingDialog()" class="btn-primary mt-2 d-inline-block">Agendar Serviço</button>
     </div>
 
     <div class="appointments-list">
@@ -46,8 +52,14 @@ import { AuthService } from '../../core/integration/auth/auth.service';
     </div>
   `,
   styles: [`
-    .page-header { margin-bottom: 2rem; }
-    .page-header h2 { font-size: 1.8rem; }
+    .page-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-header h2 { font-size: 1.8rem; margin: 0; }
+    .subtitle { color: var(--text-secondary); margin-top: 0.25rem; }
     
     .empty-state {
       text-align: center;
@@ -120,12 +132,19 @@ import { AuthService } from '../../core/integration/auth/auth.service';
 export class AppointmentListComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
 
   appointments: any[] = [];
   isLoading = true;
 
   ngOnInit() {
     this.loadAppointments();
+    this.appointmentService.appointmentCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadAppointments();
+      });
   }
 
   loadAppointments() {
@@ -158,6 +177,13 @@ export class AppointmentListComponent implements OnInit {
       'CONFIRMED': 'Confirmado'
     };
     return statusMap[status] || status;
+  }
+
+  openBookingDialog() {
+    this.dialog.open(AppointmentBookingComponent, {
+      width: '500px',
+      maxWidth: '90vw'
+    });
   }
 
   cancel(id: string) {

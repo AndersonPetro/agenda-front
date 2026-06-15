@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentResponse, TimeSlotResponse } from './appointment.model';
 import { environment } from '../../../../environments/environment';
 
@@ -9,6 +9,13 @@ import { environment } from '../../../../environments/environment';
 })
 export class AppointmentService {
   private apiUrl = `${environment.apiUrl}/appointments`;
+  
+  private appointmentCreatedSource = new Subject<void>();
+  appointmentCreated$ = this.appointmentCreatedSource.asObservable();
+
+  notifyAppointmentCreated() {
+    this.appointmentCreatedSource.next();
+  }
 
   constructor(private http: HttpClient) { }
 

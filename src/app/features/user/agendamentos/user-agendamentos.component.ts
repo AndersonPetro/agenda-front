@@ -4,11 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/integration/auth/auth.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../../core/integration/user/user.service';
+import { AppointmentService } from '../../../core/integration/appointment/appointment.service';
+import { MaterialModule } from '../../../material/material.module';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 @Component({
   selector: 'app-user-agendamentos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaterialModule],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }
+  ],
   templateUrl: './user-agendamentos.component.html',
   styleUrls: ['./user-agendamentos.component.scss']
 })
@@ -16,11 +22,13 @@ export class UserAgendamentosComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private userService = inject(UserService);
+  private appointmentService = inject(AppointmentService);
 
   userName = '';
   successMsg = '';
 
   activeTab = 'agendamentos';
+  showBookingModal = false;
 
   // Profile Form State
   isUpdatingProfile = false;
@@ -36,6 +44,8 @@ export class UserAgendamentosComponent implements OnInit {
   selectedService: any = null;
   selectedProfessional = '';
   selectedDate = '2026-06-15';
+  selectedDateObj: any = null;
+  minDateObj = new Date();
   selectedSlot = '';
 
   // Options
@@ -151,6 +161,7 @@ export class UserAgendamentosComponent implements OnInit {
   selectService(service: any) {
     this.selectedService = service;
     this.selectedSlot = ''; // Reset slot selection
+    this.onServiceOrDateChange();
   }
 
   onServiceChange(serviceId: string) {
@@ -162,10 +173,59 @@ export class UserAgendamentosComponent implements OnInit {
     }
     this.selectedSlot = ''; // Reset slot selection
     this.selectedProfessional = ''; // Reset professional selection
+    this.onServiceOrDateChange();
+  }
+
+  onServiceOrDateChange() {
+    this.selectedSlot = '';
+    this.availableSlots = [];
+
+    if (this.selectedService && this.selectedDate) {
+      this.appointmentService.getAvailableSlots(this.selectedDate, String(this.selectedService.id)).subscribe({
+        next: (slots) => {
+          this.availableSlots = slots
+            .filter(s => s.available)
+            .map(s => s.startTime.slice(0, 5));
+        },
+        error: () => {
+          // Fallback to default mock slots
+          this.availableSlots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+        }
+      });
+    }
+  }
+
+  onDateChange(event: any) {
+    const dateValue = event.value;
+    if (dateValue && typeof dateValue.format === 'function') {
+      this.selectedDate = dateValue.format('YYYY-MM-DD');
+    } else if (dateValue instanceof Date) {
+      const year = dateValue.getFullYear();
+      const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+      const day = String(dateValue.getDate()).padStart(2, '0');
+      this.selectedDate = `${year}-${month}-${day}`;
+    } else {
+      this.selectedDate = '';
+    }
+    this.onServiceOrDateChange();
   }
 
   selectSlot(slot: string) {
     this.selectedSlot = slot;
+  }
+
+  openBookingModal() {
+    this.selectedService = null;
+    this.selectedProfessional = '';
+    this.selectedSlot = '';
+    this.selectedDate = '';
+    this.selectedDateObj = null;
+    this.availableSlots = [];
+    this.showBookingModal = true;
+  }
+
+  closeBookingModal() {
+    this.showBookingModal = false;
   }
 
   confirmBooking() {
@@ -184,8 +244,9 @@ export class UserAgendamentosComponent implements OnInit {
 
     this.myAppointments.unshift(newBooking);
     this.successMsg = `Agendamento de ${this.selectedService.name} confirmado com sucesso para dia ${newBooking.date} às ${newBooking.time}!`;
-    
-    // Reset selections
+
+    // Close modal and reset selections
+    this.closeBookingModal();
     this.selectedService = null;
     this.selectedProfessional = '';
     this.selectedSlot = '';

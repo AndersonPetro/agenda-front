@@ -5,14 +5,17 @@ import { Router } from '@angular/router';
 import { AppointmentService } from '../../core/integration/appointment/appointment.service';
 import { ServiceService } from '../../core/integration/service.service';
 import { AuthService } from '../../core/integration/auth/auth.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MaterialModule } from '../../material/material.module';
 
 @Component({
   selector: 'app-appointment-booking',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   template: `
     <div class="booking-container">
       <div class="page-header">
+        <button *ngIf="dialogRef" class="close-btn" (click)="closeDialog()">&times;</button>
         <h2>Novo Agendamento</h2>
         <p class="subtitle">Escolha o serviço e o melhor horário para você.</p>
       </div>
@@ -63,11 +66,27 @@ import { AuthService } from '../../core/integration/auth/auth.service';
   `,
   styles: [`
     .booking-container { max-width: 600px; margin: 0 auto; }
-    .page-header { margin-bottom: 2rem; text-align: center; }
+    .page-header { position: relative; margin-bottom: 2rem; text-align: center; }
     .page-header h2 { font-size: 1.8rem; }
     .subtitle { color: var(--text-secondary); }
     .w-100 { width: 100%; margin-top: 1.5rem; }
     .mt-4 { margin-top: 1.5rem; }
+    
+    .close-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: none;
+      font-size: 1.75rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      line-height: 1;
+      padding: 0;
+    }
+    .close-btn:hover {
+      color: var(--text-primary);
+    }
     
     .slots-grid {
       display: grid;
@@ -95,6 +114,16 @@ import { AuthService } from '../../core/integration/auth/auth.service';
       border-color: var(--accent-primary);
       box-shadow: var(--shadow-glow);
     }
+
+    :host-context(.mat-mdc-dialog-container) .booking-container {
+      max-width: 100%;
+    }
+    :host-context(.mat-mdc-dialog-container) .glass-card {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      background: transparent;
+    }
   `]
 })
 export class AppointmentBookingComponent implements OnInit {
@@ -103,6 +132,7 @@ export class AppointmentBookingComponent implements OnInit {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  public dialogRef = inject(MatDialogRef<AppointmentBookingComponent>, { optional: true });
 
   services: any[] = [];
   availableSlots: any[] = [];
@@ -174,8 +204,16 @@ export class AppointmentBookingComponent implements OnInit {
     }
   }
 
+
+
   selectSlot(time: string) {
     this.selectedSlot = time;
+  }
+
+  closeDialog() {
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    }
   }
 
   bookAppointment() {
@@ -189,6 +227,9 @@ export class AppointmentBookingComponent implements OnInit {
       const userId = this.authService.getUserId();
       if (!userId) {
         this.isSubmitting = false;
+        if (this.dialogRef) {
+          this.dialogRef.close();
+        }
         this.router.navigate(['/login']);
         return;
       }
@@ -203,7 +244,12 @@ export class AppointmentBookingComponent implements OnInit {
       this.appointmentService.createAppointment(payload).subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.router.navigate(['/appointments']);
+          this.appointmentService.notifyAppointmentCreated();
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            this.router.navigate(['/appointments']);
+          }
         },
         error: () => {
           this.isSubmitting = false;
@@ -226,7 +272,12 @@ export class AppointmentBookingComponent implements OnInit {
           localStorage.setItem('mock_appointments', JSON.stringify(existingMock));
 
           alert('Agendamento criado com sucesso (Modo offline/Mock)!');
-          this.router.navigate(['/appointments']);
+          this.appointmentService.notifyAppointmentCreated();
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            this.router.navigate(['/appointments']);
+          }
         }
       });
     }

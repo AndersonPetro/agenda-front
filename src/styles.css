@@ -167,3 +167,59 @@ button {
   border: 1px solid rgba(16, 185, 129, 0.2);
   margin-bottom: 1rem;
 }
+
+/* Fix overlay/datepicker visibility inside custom modals */
+.cdk-overlay-container,
+.cdk-overlay-pane,
+.mat-datepicker-popup {
+  z-index: 2000 !important;
+}
+
+/* Fix Material Datepicker transparent background and colors */
+.mat-datepicker-content {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+.mat-datepicker-content .mat-calendar {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.mat-datepicker-content .mat-calendar-header {
+  color: #0f172a !important;
+}
+
+.mat-datepicker-content .mat-calendar-table-header th {
+  color: #64748b !important;
+}
+
+.mat-datepicker-content .mat-calendar-body-label {
+  color: #0f172a !important;
+  font-weight: 600;
+}
+
+.mat-datepicker-content .mat-calendar-body-cell-content {
+  color: #0f172a !important;
+  border-radius: 50% !important;
+}
+
+.mat-datepicker-content .mat-calendar-body-cell-content:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.mat-datepicker-content .mat-calendar-body-selected {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+.mat-datepicker-content .mat-calendar-body-today {
+  border-color: #6366f1 !important;
+}
+
+.mat-datepicker-content button.mat-mdc-icon-button {
+  color: #0f172a !important;
+}

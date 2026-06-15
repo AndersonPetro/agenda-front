@@ -2,11 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/integration/auth/auth.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AppointmentBookingComponent } from '../../../appointments/appointment-booking/appointment-booking.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatDialogModule],
   template: `
     <nav class="navbar glass-card" *ngIf="isAuthenticated">
       <div class="nav-brand" (click)="onBrandClick()" style="cursor: pointer;">
@@ -16,7 +18,7 @@ import { AuthService } from '../../../core/integration/auth/auth.service';
       
       <div class="nav-links">
         <a routerLink="/appointments" routerLinkActive="active" class="nav-item">Meus Agendamentos</a>
-        <a routerLink="/book" routerLinkActive="active" class="nav-item">Novo Agendamento</a>
+        <a (click)="openBookingDialog($event)" class="nav-item" style="cursor: pointer;">Novo Agendamento</a>
         <a routerLink="/services" routerLinkActive="active" class="nav-item">Serviços</a>
       </div>
 
@@ -85,6 +87,7 @@ import { AuthService } from '../../../core/integration/auth/auth.service';
 export class NavbarComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   isAuthenticated = false;
   isAdmin = false;
@@ -100,6 +103,14 @@ export class NavbarComponent implements OnInit {
     } else {
       this.router.navigate(['/appointments']);
     }
+  }
+
+  openBookingDialog(event: Event) {
+    event.preventDefault();
+    this.dialog.open(AppointmentBookingComponent, {
+      width: '500px',
+      maxWidth: '90vw'
+    });
   }
 
   logout() {
