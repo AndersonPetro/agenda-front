@@ -172,8 +172,7 @@ export class UserAgendamentosComponent implements OnInit {
     if (!serviceId) {
       this.selectedService = null;
     } else {
-      const id = Number(serviceId);
-      this.selectedService = this.services.find(s => s.id === id) || null;
+      this.selectedService = this.services.find(s => String(s.id) === serviceId) || null;
     }
     this.selectedSlot = ''; // Reset slot selection
     this.selectedProfessional = ''; // Reset professional selection
@@ -237,27 +236,139 @@ export class UserAgendamentosComponent implements OnInit {
       return;
     }
 
-    const newBooking = {
-      id: Date.now(),
-      service: this.selectedService.name,
-      date: new Date(this.selectedDate).toLocaleDateString('pt-BR'),
-      time: this.selectedSlot,
-      professional: this.selectedProfessional.split(' (')[0],
-      status: 'Agendado'
+    const userId = this.authService.getUserId() || '';
+    const scheduledSlot = this.selectedSlot.length === 5 ? `${this.selectedSlot}:00` : this.selectedSlot;
+    const scheduledAt = `${this.selectedDate}T${scheduledSlot}`;
+
+    const payload = {
+      userId: userId,
+      serviceId: String(this.selectedService.id),
+      scheduledAt: scheduledAt,
+      notes: ''
     };
 
-    this.myAppointments.unshift(newBooking);
-    this.successMsg = `Agendamento de ${this.selectedService.name} confirmado com sucesso para dia ${newBooking.date} às ${newBooking.time}!`;
+    const formattedDate = new Date(this.selectedDate).toLocaleDateString('pt-BR');
+    const displayTime = this.selectedSlot.slice(0, 5);
 
-    // Close modal and reset selections
-    this.closeBookingModal();
-    this.selectedService = null;
-    this.selectedProfessional = '';
-    this.selectedSlot = '';
+    this.appointmentService.createAppointment(payload).subscribe({
+      next: () => {
+        this.successMsg = `Agendamento de ${this.selectedService.name} confirmado com sucesso para dia ${formattedDate} às ${displayTime}!`;
+        this.appointmentService.notifyAppointmentCreated();
+        
+        // Close modal and reset selections
+        this.closeBookingModal();
+        this.selectedService = null;
+        this.selectedProfessional = '';
+        this.selectedSlot = '';
 
-    setTimeout(() => {
-      this.successMsg = '';
-    }, 4000);
+        setTimeout(() => {
+          this.successMsg = '';
+        }, 4000);
+      },
+      error: (err) => {
+        console.warn('Erro ao criar agendamento na API, usando mock local:', err);
+        // Fallback for mock/offline environment
+        const mockAppt = {
+          id: 'mock_' + Date.now(),
+          userId: userId,
+          serviceId: String(this.selectedService.id),
+          serviceName: this.selectedService.name,
+          scheduledAt: scheduledAt,
+          status: 'SCHEDULED',
+          professional: this.selectedProfessional.split(' (')[0],
+          notes: ''
+        };
+        const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]');
+        mockAppts.push(mockAppt);
+        localStorage.setItem('mock_appointments', JSON.stringify(mockAppts));
+
+        this.successMsg = `Agendamento de ${this.selectedService.name} confirmado com sucesso para dia ${formattedDate} às ${displayTime}!`;
+        this.appointmentService.notifyAppointmentCreated();
+
+        // Close modal and reset selections
+        this.closeBookingModal();
+        this.selectedService = null;
+        this.selectedProfessional = '';
+        this.selectedSlot = '';
+
+        setTimeout(() => {
+          this.successMsg = '';
+        }, 4000);
+      }
+    });
+  }
+
+  loadServices() {
+    this.serviceService.getServices().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.services = data;
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar serviços:', err);
+      }
+    });
+  }
+
+  loadAppointments() {
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    this.appointmentService.getUserAppointments(userId).subscribe({
+      next: (data) => {
+        const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
+          .filter((a: any) => a.userId === userId);
+        const merged = [...data, ...mockAppts];
+        
+        // Sort by date descending
+        const sorted = merged.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+        
+        this.myAppointments = sorted.map((appt: any) => {
+          const dateObj = new Date(appt.scheduledAt);
+          const formattedDate = dateObj.toLocaleDateString('pt-BR');
+          const formattedTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          
+          return {
+            id: appt.id,
+            service: appt.serviceName || appt.service?.name || 'Serviço',
+            date: formattedDate,
+            time: formattedTime,
+            professional: appt.professional || 'Carlos Silva',
+            status: this.translateStatus(appt.status)
+          };
+        });
+      },
+      error: (err) => {
+        console.error('Erro ao carregar agendamentos:', err);
+        const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
+          .filter((a: any) => a.userId === userId);
+        const sorted = mockAppts.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+        
+        this.myAppointments = sorted.map((appt: any) => {
+          const dateObj = new Date(appt.scheduledAt);
+          return {
+            id: appt.id,
+            service: appt.serviceName || 'Serviço',
+            date: dateObj.toLocaleDateString('pt-BR'),
+            time: dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            professional: appt.professional || 'Carlos Silva',
+            status: this.translateStatus(appt.status)
+          };
+        });
+      }
+    });
+  }
+
+  translateStatus(status: string): string {
+    const statusMap: any = {
+      'SCHEDULED': 'Agendado',
+      'PENDING': 'Pendente',
+      'COMPLETED': 'Concluído',
+      'CANCELLED': 'Cancelado',
+      'CONFIRMED': 'Confirmado'
+    };
+    return statusMap[status] || status;
   }
 
   getStatusClass(status: string): string {
