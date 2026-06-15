@@ -7,19 +7,19 @@
     </div>
     
     <nav class="sidebar-nav">
-      <button class="nav-btn" [class.active]="activeTab === 'Dashboard'" (click)="selectTab('Dashboard')">
+      <button class="nav-btn" [class.active]="activeTab === 'Dashboard'" routerLink="/agenda">
         <span class="icon">📊</span> Dashboard
       </button>
-      <button class="nav-btn" [class.active]="activeTab === 'Agendamentos'" (click)="selectTab('Agendamentos')">
+      <button class="nav-btn" [class.active]="activeTab === 'Agendamentos'" routerLink="/agenda/appointments">
         <span class="icon">📅</span> Agendamentos
       </button>
-      <button class="nav-btn" [class.active]="activeTab === 'Serviços'" (click)="selectTab('Serviços')">
+      <button class="nav-btn" [class.active]="activeTab === 'Serviços'" routerLink="/agenda/services">
         <span class="icon">🛠️</span> Serviços
       </button>
-      <button class="nav-btn" [class.active]="activeTab === 'Clientes'" (click)="selectTab('Clientes')">
+      <button class="nav-btn" [class.active]="activeTab === 'Clientes'" routerLink="/agenda/users">
         <span class="icon">👥</span> Clientes
       </button>
-      <button class="nav-btn" [class.active]="activeTab === 'Relatórios'" (click)="selectTab('Relatórios')">
+      <button class="nav-btn" [class.active]="activeTab === 'Relatórios'" routerLink="/agenda/reports">
         <span class="icon">📈</span> Relatórios
       </button>
       <button class="nav-btn" [class.active]="activeTab === 'Configurações'" (click)="selectTab('Configurações')">

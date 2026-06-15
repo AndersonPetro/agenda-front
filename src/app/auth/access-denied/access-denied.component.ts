@@ -71,7 +71,7 @@ export class AccessDeniedComponent implements OnInit {
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       if (this.authService.hasRole('ADMIN')) {
-        this.redirectLink = '/admin/dashboard';
+        this.redirectLink = '/agenda';
         this.buttonText = 'Voltar para o Painel';
       } else if (this.authService.hasRole('CLIENTE')) {
         this.redirectLink = '/user/agendamentos';

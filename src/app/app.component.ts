@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
         filter(event => event instanceof NavigationEnd)
       ).subscribe((event: any) => {
         const url = event.urlAfterRedirects || event.url;
-        this.showNavbar = !url.includes('/login') && !url.includes('/signup') && !url.includes('/admin/') && !url.includes('/user/');
+        this.showNavbar = !url.includes('/login') && !url.includes('/signup') && !url.includes('/admin/') && !url.includes('/user/') && !url.includes('/agenda');
       });
     }
   }

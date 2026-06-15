@@ -96,7 +96,7 @@ export class NavbarComponent implements OnInit {
 
   onBrandClick() {
     if (this.isAdmin) {
-      this.router.navigate(['/admin/dashboard']);
+      this.router.navigate(['/agenda']);
     } else {
       this.router.navigate(['/appointments']);
     }

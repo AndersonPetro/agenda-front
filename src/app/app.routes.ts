@@ -32,7 +32,31 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'admin/dashboard',
+    path: 'agenda',
+    loadComponent: () => import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'agenda/users',
+    loadComponent: () => import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'agenda/appointments',
+    loadComponent: () => import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'agenda/reports',
+    loadComponent: () => import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'agenda/services',
     loadComponent: () => import('./features/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
     canActivate: [roleGuard],
     data: { role: 'ADMIN' }

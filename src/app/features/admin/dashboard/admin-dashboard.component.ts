@@ -2,14 +2,15 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/integration/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { UserService } from '../../../core/integration/user/user.service';
 import { AppointmentService } from '../../../core/integration/appointment/appointment.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -305,7 +306,28 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateActiveTabFromUrl();
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.updateActiveTabFromUrl();
+    });
     this.loadClients();
+  }
+
+  updateActiveTabFromUrl() {
+    const url = this.router.url;
+    if (url.includes('/agenda/users')) {
+      this.activeTab = 'Clientes';
+    } else if (url.includes('/agenda/appointments')) {
+      this.activeTab = 'Agendamentos';
+    } else if (url.includes('/agenda/reports')) {
+      this.activeTab = 'Relatórios';
+    } else if (url.includes('/agenda/services')) {
+      this.activeTab = 'Serviços';
+    } else {
+      this.activeTab = 'Dashboard';
+    }
   }
 
   loadClients() {

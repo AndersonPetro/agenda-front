@@ -117,7 +117,7 @@ export class LoginComponent {
         next: () => {
           this.isLoading = false;
           if (this.authService.hasRole('ADMIN')) {
-            this.router.navigate(['/admin/dashboard']);
+            this.router.navigate(['/agenda']);
           } else if (this.authService.hasRole('CLIENTE')) {
             this.router.navigate(['/user/agendamentos']);
           } else {
