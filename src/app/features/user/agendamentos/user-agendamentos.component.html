@@ -1,145 +1,180 @@
-<div class="user-container">
-  <!-- Header -->
-  <header class="user-header">
-    <div class="header-left">
+<div class="user-layout">
+  <!-- Sidebar (Menu Lateral) -->
+  <aside class="user-sidebar">
+    <div class="sidebar-header">
       <div class="logo">A</div>
-      <div>
+      <div class="sidebar-brand">
         <h1>AgendaService</h1>
-        <p class="subtitle">Bem-vindo(a), {{ userName }}</p>
+        <p class="subtitle">Bem-vindo(a),<br><strong>{{ userName }}</strong></p>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="tab-btn" [class.active]="activeTab === 'agendamentos'"
-        (click)="selectTab('agendamentos')">Agendamentos</button>
-      <button class="tab-btn" [class.active]="activeTab === 'configuracoes'"
-        (click)="selectTab('configuracoes')">Configurações</button>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="activeTab === 'agendamentos'"
+        (click)="selectTab('agendamentos')">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Agendamentos</span>
+      </button>
+
+      <button class="nav-item" [class.active]="activeTab === 'configuracoes'"
+        (click)="selectTab('configuracoes')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Configurações</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()">Sair</button>
     </div>
-  </header>
+  </aside>
 
-  <div *ngIf="successMsg" class="toast-success">{{ successMsg }}</div>
+  <!-- Main Content -->
+  <main class="user-main">
+    <header class="main-header">
+      <h2 class="page-title">
+        <ng-container *ngIf="activeTab === 'agendamentos'">Meus Agendamentos</ng-container>
+        <ng-container *ngIf="activeTab === 'configuracoes'">Configurações da Conta</ng-container>
+      </h2>
+    </header>
 
-  <!-- Tab: Agendamentos -->
-  <div *ngIf="activeTab === 'agendamentos'" class="agendamentos-tab-container">
+    <div *ngIf="successMsg" class="toast-success">{{ successMsg }}</div>
 
-    <div class="action-header">
-      <button class="btn-primary" (click)="openBookingModal()">Novo Agendamento</button>
-    </div>
+    <!-- Tab: Agendamentos -->
+    <div *ngIf="activeTab === 'agendamentos'" class="agendamentos-tab-container">
 
-    <!-- Centered: My Appointments -->
-    <div class="tracking-section glass-card centered-section">
-      <h2>Meus Agendamentos</h2>
-      <p class="description">Acompanhe o status dos seus serviços marcados.</p>
-
-      <div *ngIf="myAppointments.length === 0" class="empty-state">
-        <span class="icon">📅</span>
-        <p>Você ainda não tem agendamentos marcados.</p>
+      <div class="action-header">
+        <button class="btn-primary" (click)="openBookingModal()">Novo Agendamento</button>
       </div>
 
-      <div class="appointments-list" *ngIf="myAppointments.length > 0">
-        <div *ngFor="let appt of myAppointments" class="appt-card">
-          <div class="appt-info">
-            <h3>{{ appt.service }}</h3>
-            <p class="meta">🧑‍💼 {{ appt.professional }}</p>
-            <p class="datetime">📅 {{ appt.date }} às {{ appt.time }}</p>
-          </div>
-          <span class="badge" [ngClass]="getStatusClass(appt.status)">{{ appt.status }}</span>
-        </div>
-      </div>
-    </div>
+      <!-- Centered: My Appointments -->
+      <div class="tracking-section glass-card centered-section">
+        <h2>Meus Agendamentos</h2>
+        <p class="description">Acompanhe o status dos seus serviços marcados.</p>
 
-    <!-- Modal: Novo Agendamento -->
-    <div class="modal-backdrop" *ngIf="showBookingModal" (click)="closeBookingModal()">
-      <div class="modal-content glass-card" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Novo Agendamento</h2>
-          <button class="close-btn" (click)="closeBookingModal()">&times;</button>
+        <div *ngIf="myAppointments.length === 0" class="empty-state">
+          <span class="icon">📅</span>
+          <p>Você ainda não tem agendamentos marcados.</p>
         </div>
 
-        <!-- Step 1: Select Service -->
-        <div class="booking-step">
-          <label class="step-label" for="serviceSelect">1. Escolha o Serviço</label>
-          <select id="serviceSelect" class="form-control" [ngModel]="selectedService ? selectedService.id : ''"
-            (ngModelChange)="onServiceChange($event)">
-            <option value="" disabled selected>Selecione um serviço...</option>
-            <option *ngFor="let service of services" [value]="service.id">
-              {{ service.name }} - {{ service.duration }} ({{ service.price }})
-            </option>
-          </select>
-        </div>
-
-        <!-- Step 2: Details Form -->
-        <div class="booking-step" *ngIf="selectedService">
-          <label class="step-label">2. Escolha o Profissional</label>
-          <select class="form-control" [(ngModel)]="selectedProfessional" (change)="onServiceOrDateChange()">
-            <option value="" disabled selected>Selecione um profissional...</option>
-            <option *ngFor="let prof of professionals" [value]="prof">{{ prof }}</option>
-          </select>
-        </div>
-
-        <!-- Step 3: Date Picker -->
-        <div class="booking-step" *ngIf="selectedService && selectedProfessional">
-          <label class="step-label">3. Selecione a Data</label>
-          <mat-form-field appearance="outline" style="width: 100%;">
-            <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDateObj" (dateChange)="onDateChange($event)"
-              [min]="minDateObj" placeholder="mm/dd/yyyy">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <!-- Step 4: Available Slots -->
-        <div class="booking-step" *ngIf="selectedService && selectedProfessional && selectedDate">
-          <label class="step-label">4. Escolha o Horário</label>
-          <div class="slots-grid">
-            <button *ngFor="let slot of availableSlots" class="slot-btn" [class.active]="selectedSlot === slot"
-              (click)="selectSlot(slot)">
-              {{ slot }}
-            </button>
+        <div class="appointments-list" *ngIf="myAppointments.length > 0">
+          <div *ngFor="let appt of paginatedMyAppointments" class="appt-card">
+            <div class="appt-info">
+              <h3>{{ appt.service }}</h3>
+              <p class="meta">🧑‍💼 {{ appt.professional }}</p>
+              <p class="datetime">📅 {{ appt.date }} às {{ appt.time }}</p>
+            </div>
+            <span class="badge" [ngClass]="getStatusClass(appt.status)">{{ appt.status }}</span>
           </div>
         </div>
 
-        <!-- Confirm Booking Button -->
-        <button class="btn-primary confirm-btn"
-          [disabled]="!selectedService || !selectedProfessional || !selectedDate || !selectedSlot"
-          (click)="confirmBooking()" *ngIf="selectedService">
-          Confirmar Agendamento
-        </button>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="myAppointments.length > 0">
+          <button (click)="myAppointmentsPage = 1"
+            [disabled]="myAppointmentsPage === 1" class="btn-page">Primeira</button>
+          <button (click)="myAppointmentsPage = myAppointmentsPage - 1"
+            [disabled]="myAppointmentsPage === 1" class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ myAppointmentsPage }} de {{ totalMyAppointmentsPages }}</span>
+          <button (click)="myAppointmentsPage = myAppointmentsPage + 1"
+            [disabled]="myAppointmentsPage === totalMyAppointmentsPages" class="btn-page">Próxima</button>
+          <button (click)="myAppointmentsPage = totalMyAppointmentsPages"
+            [disabled]="myAppointmentsPage === totalMyAppointmentsPages" class="btn-page">Última</button>
+        </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Modal: Novo Agendamento -->
+      <div class="modal-backdrop" *ngIf="showBookingModal" (click)="closeBookingModal()">
+        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Novo Agendamento</h2>
+            <button class="close-btn" (click)="closeBookingModal()">&times;</button>
+          </div>
 
-  <!-- Tab: Configurações -->
-  <div *ngIf="activeTab === 'configuracoes'" class="settings-container">
-    <div class="settings-card glass-card">
-      <h2>Configurações da Conta</h2>
-      <p class="description">Atualize suas informações de contato. O nome não pode ser alterado.</p>
+          <!-- Step 1: Select Service -->
+          <div class="booking-step">
+            <label class="step-label" for="serviceSelect">1. Escolha o Serviço</label>
+            <select id="serviceSelect" class="form-control" [ngModel]="selectedService ? selectedService.id : ''"
+              (ngModelChange)="onServiceChange($event)">
+              <option value="" disabled selected>Selecione um serviço...</option>
+              <option *ngFor="let service of services" [value]="service.id">
+                {{ service.name }} - {{ service.duration }} ({{ service.price }})
+              </option>
+            </select>
+          </div>
 
-      <div *ngIf="profileErrorMsg" class="alert-error">{{ profileErrorMsg }}</div>
-      <div *ngIf="profileSuccessMsg" class="alert-success">{{ profileSuccessMsg }}</div>
+          <!-- Step 2: Details Form -->
+          <div class="booking-step" *ngIf="selectedService">
+            <label class="step-label">2. Escolha o Profissional</label>
+            <select class="form-control" [(ngModel)]="selectedProfessional" (change)="onServiceOrDateChange()">
+              <option value="" disabled selected>Selecione um profissional...</option>
+              <option *ngFor="let prof of professionals" [value]="prof">{{ prof }}</option>
+            </select>
+          </div>
 
-      <form (submit)="updateProfile(); $event.preventDefault()" class="settings-form">
-        <div class="form-group">
-          <label>Nome</label>
-          <input type="text" [value]="profileData.name" class="form-control disabled-input" readonly disabled>
-        </div>
-        <div class="form-group">
-          <label>E-mail</label>
-          <input type="email" [(ngModel)]="profileData.email" name="email" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label>Telefone</label>
-          <input type="text" [(ngModel)]="profileData.phone" name="phone" class="form-control" required
-            placeholder="(11) 99999-9999">
-        </div>
-        <div class="settings-actions">
-          <button type="submit" class="btn-primary"
-            [disabled]="isUpdatingProfile || !profileData.email || !profileData.phone">
-            {{ isUpdatingProfile ? 'Salvando...' : 'Salvar Alterações' }}
+          <!-- Step 3: Date Picker -->
+          <div class="booking-step" *ngIf="selectedService && selectedProfessional">
+            <label class="step-label">3. Selecione a Data</label>
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDateObj" (dateChange)="onDateChange($event)"
+                [min]="minDateObj" placeholder="mm/dd/yyyy">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <!-- Step 4: Available Slots -->
+          <div class="booking-step" *ngIf="selectedService && selectedProfessional && selectedDate">
+            <label class="step-label">4. Escolha o Horário</label>
+            <div class="slots-grid">
+              <button *ngFor="let slot of availableSlots" class="slot-btn" [class.active]="selectedSlot === slot"
+                (click)="selectSlot(slot)">
+                {{ slot }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Booking Button -->
+          <button class="btn-primary confirm-btn"
+            [disabled]="!selectedService || !selectedProfessional || !selectedDate || !selectedSlot"
+            (click)="confirmBooking()" *ngIf="selectedService">
+            Confirmar Agendamento
           </button>
         </div>
-      </form>
+      </div>
+
     </div>
-  </div>
+
+    <!-- Tab: Configurações -->
+    <div *ngIf="activeTab === 'configuracoes'" class="settings-container">
+      <div class="settings-card glass-card">
+        <h2>Configurações da Conta</h2>
+        <p class="description">Atualize suas informações de contato. O nome não pode ser alterado.</p>
+
+        <div *ngIf="profileErrorMsg" class="alert-error">{{ profileErrorMsg }}</div>
+        <div *ngIf="profileSuccessMsg" class="alert-success">{{ profileSuccessMsg }}</div>
+
+        <form (submit)="updateProfile(); $event.preventDefault()" class="settings-form">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" [value]="profileData.name" class="form-control disabled-input" readonly disabled>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" [(ngModel)]="profileData.email" name="email" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" [(ngModel)]="profileData.phone" name="phone" class="form-control" required
+              placeholder="(11) 99999-9999">
+          </div>
+          <div class="settings-actions">
+            <button type="submit" class="btn-primary"
+              [disabled]="isUpdatingProfile || !profileData.email || !profileData.phone">
+              {{ isUpdatingProfile ? 'Salvando...' : 'Salvar Alterações' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
 </div>
+

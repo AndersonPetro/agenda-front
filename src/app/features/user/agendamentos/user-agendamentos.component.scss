@@ -1,3 +1,238 @@
+/* ===========================
+   Layout: Sidebar + Main
+   =========================== */
+:host {
+  display: block;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.user-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  color: #101a3a;
+  position: relative;
+}
+
+/* Menu Lateral (Sidebar) - Fixado no lado ESQUERDO da tela */
+.user-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: #0f172a; /* Slate 900 / Dark Blue - igual ao admin */
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #1e293b;
+  box-shadow: 4px 0 12px -4px rgba(15, 23, 42, 0.15);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 1.5rem;
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      background-color: #2563eb; /* Royal Blue - igual ao admin */
+      color: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.9rem;
+        margin: 0.35rem 0 0 0;
+        line-height: 1.35;
+
+        strong {
+          color: #ffffff;
+          font-weight: 700;
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    flex: 1;
+  }
+
+  .sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #1e293b;
+
+    .logout-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background-color: transparent;
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #ef4444;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+      }
+    }
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8; /* Muted slate - igual ao admin */
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+
+    .nav-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .nav-label {
+      flex: 1;
+    }
+
+    &:hover {
+      background-color: #1e293b; /* Slate 800 - igual ao admin */
+      color: #ffffff;
+    }
+
+    &.active {
+      background-color: #1e3a8a; /* Navy Blue - igual ao admin */
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+  }
+}
+
+/* Main Content Area - Posicionada à direita da sidebar fixa */
+.user-main {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  margin-left: 260px;
+  max-width: calc(100% - 260px);
+  overflow-x: hidden;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0;
+    }
+  }
+}
+
+/* Responsive: Sidebar collapses on small screens */
+@media (max-width: 768px) {
+  .user-layout {
+    flex-direction: column;
+  }
+
+  .user-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 1rem;
+
+    .sidebar-header {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex: 1;
+      gap: 0.5rem;
+
+      .nav-item .nav-label {
+        display: none;
+      }
+    }
+
+    .sidebar-footer {
+      border-top: none;
+      padding-top: 0;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      padding-left: 0.5rem;
+
+      .logout-btn {
+        width: auto;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .user-main {
+    padding: 1.5rem 1rem;
+    margin-left: 0;
+    max-width: 100%;
+  }
+}
+
 .user-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -144,7 +379,7 @@
   }
 
   .description {
-    color: #64748b;
+    color: #090909;
     font-size: 0.9rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -336,6 +571,46 @@ select.form-control option {
   gap: 1rem;
 }
 
+/* Pagination Controls (igual ao admin) */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+
+  .page-info {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e3a8a;
+  }
+
+  .btn-page {
+    padding: 0.5rem 1rem;
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+      color: #011126;
+    }
+
+    &:not(:disabled):hover {
+      background-color: #1d4ed8;
+    }
+  }
+}
+
 .appt-card {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -479,7 +754,7 @@ select.form-control option {
       &:disabled {
         background-color: #cbd5e1;
         cursor: not-allowed;
-        color: #94a3b8;
+        color: #011126;
         box-shadow: none;
         transform: none;
       }

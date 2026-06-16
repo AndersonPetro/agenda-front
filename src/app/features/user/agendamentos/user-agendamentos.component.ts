@@ -69,6 +69,24 @@ export class UserAgendamentosComponent implements OnInit {
   // Scheduled appointments tracking
   myAppointments: any[] = [];
 
+  // Pagination for "Meus Agendamentos"
+  myAppointmentsPage: number = 1;
+  myAppointmentsPageSize: number = 3;
+
+  get totalMyAppointmentsPages(): number {
+    const total = Math.ceil(this.myAppointments.length / this.myAppointmentsPageSize);
+    return total > 0 ? total : 1;
+  }
+
+  get paginatedMyAppointments() {
+    const maxPage = this.totalMyAppointmentsPages;
+    if (this.myAppointmentsPage > maxPage) {
+      this.myAppointmentsPage = maxPage;
+    }
+    const startIndex = (this.myAppointmentsPage - 1) * this.myAppointmentsPageSize;
+    return this.myAppointments.slice(startIndex, startIndex + this.myAppointmentsPageSize);
+  }
+
   ngOnInit() {
     const user = this.authService.getUser();
     this.userName = user ? user.name : 'Cliente';
@@ -254,7 +272,7 @@ export class UserAgendamentosComponent implements OnInit {
       next: () => {
         this.successMsg = `Agendamento de ${this.selectedService.name} confirmado com sucesso para dia ${formattedDate} às ${displayTime}!`;
         this.appointmentService.notifyAppointmentCreated();
-        
+
         // Close modal and reset selections
         this.closeBookingModal();
         this.selectedService = null;
@@ -320,15 +338,15 @@ export class UserAgendamentosComponent implements OnInit {
         const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
           .filter((a: any) => a.userId === userId);
         const merged = [...data, ...mockAppts];
-        
+
         // Sort by date descending
         const sorted = merged.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
-        
+
         this.myAppointments = sorted.map((appt: any) => {
           const dateObj = new Date(appt.scheduledAt);
           const formattedDate = dateObj.toLocaleDateString('pt-BR');
           const formattedTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          
+
           return {
             id: appt.id,
             service: appt.serviceName || appt.service?.name || 'Serviço',
@@ -344,7 +362,7 @@ export class UserAgendamentosComponent implements OnInit {
         const mockAppts = JSON.parse(localStorage.getItem('mock_appointments') || '[]')
           .filter((a: any) => a.userId === userId);
         const sorted = mockAppts.sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
-        
+
         this.myAppointments = sorted.map((appt: any) => {
           const dateObj = new Date(appt.scheduledAt);
           return {
