@@ -8,6 +8,8 @@ import { AppointmentService } from '../../../core/integration/appointment/appoin
 import { ServiceService } from '../../../core/integration/service.service';
 import { MaterialModule } from '../../../material/material.module';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-user-agendamentos',
@@ -73,6 +75,10 @@ export class UserAgendamentosComponent implements OnInit {
   myAppointmentsPage: number = 1;
   myAppointmentsPageSize: number = 3;
 
+  // Pagination for "Histórico Recente" (aba Relatórios)
+  historyPage: number = 1;
+  historyPageSize: number = 5;
+
   get totalMyAppointmentsPages(): number {
     const total = Math.ceil(this.myAppointments.length / this.myAppointmentsPageSize);
     return total > 0 ? total : 1;
@@ -86,6 +92,50 @@ export class UserAgendamentosComponent implements OnInit {
     const startIndex = (this.myAppointmentsPage - 1) * this.myAppointmentsPageSize;
     return this.myAppointments.slice(startIndex, startIndex + this.myAppointmentsPageSize);
   }
+
+  get totalHistoryPages(): number {
+    const total = Math.ceil(this.myAppointments.length / this.historyPageSize);
+    return total > 0 ? total : 1;
+  }
+
+  get paginatedHistory() {
+    const maxPage = this.totalHistoryPages;
+    if (this.historyPage > maxPage) {
+      this.historyPage = maxPage;
+    }
+    const startIndex = (this.historyPage - 1) * this.historyPageSize;
+    return this.myAppointments.slice(startIndex, startIndex + this.historyPageSize);
+  }
+
+  // ===== Contadores da aba Relatórios =====
+  get reportTotalCount(): number {
+    return this.myAppointments.length;
+  }
+
+  get reportScheduledCount(): number {
+    return this.myAppointments.filter(a =>
+      a.status === 'Agendado' || a.status === 'Pendente' || a.status === 'Confirmado'
+    ).length;
+  }
+
+  get reportCompletedCount(): number {
+    return this.myAppointments.filter(a => a.status === 'Concluído').length;
+  }
+
+  get reportCancelledCount(): number {
+    return this.myAppointments.filter(a => a.status === 'Cancelado').length;
+  }
+
+  get reportTotalSpent(): number {
+    return this.myAppointments
+      .filter(a => a.status !== 'Cancelado')
+      .reduce((sum, a) => sum + (a.priceValue || 0), 0);
+  }
+
+  get reportTotalSpentLabel(): string {
+    return this.formatCurrency(this.reportTotalSpent);
+  }
+
 
   ngOnInit() {
     const user = this.authService.getUser();
@@ -346,14 +396,18 @@ export class UserAgendamentosComponent implements OnInit {
           const dateObj = new Date(appt.scheduledAt);
           const formattedDate = dateObj.toLocaleDateString('pt-BR');
           const formattedTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const serviceName = appt.serviceName || appt.service?.name || 'Serviço';
+          const priceValue = this.getServicePriceValue(serviceName, appt.service?.price ?? appt.price);
 
           return {
             id: appt.id,
-            service: appt.serviceName || appt.service?.name || 'Serviço',
+            service: serviceName,
             date: formattedDate,
             time: formattedTime,
             professional: appt.professional || 'Carlos Silva',
-            status: this.translateStatus(appt.status)
+            status: this.translateStatus(appt.status),
+            priceValue: priceValue,
+            priceLabel: this.formatCurrency(priceValue)
           };
         });
       },
@@ -365,13 +419,17 @@ export class UserAgendamentosComponent implements OnInit {
 
         this.myAppointments = sorted.map((appt: any) => {
           const dateObj = new Date(appt.scheduledAt);
+          const serviceName = appt.serviceName || 'Serviço';
+          const priceValue = this.getServicePriceValue(serviceName, appt.price);
           return {
             id: appt.id,
-            service: appt.serviceName || 'Serviço',
+            service: serviceName,
             date: dateObj.toLocaleDateString('pt-BR'),
             time: dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             professional: appt.professional || 'Carlos Silva',
-            status: this.translateStatus(appt.status)
+            status: this.translateStatus(appt.status),
+            priceValue: priceValue,
+            priceLabel: this.formatCurrency(priceValue)
           };
         });
       }
@@ -391,6 +449,105 @@ export class UserAgendamentosComponent implements OnInit {
 
   getStatusClass(status: string): string {
     return status.toLowerCase() === 'agendado' ? 'badge-scheduled' : 'badge-completed';
+  }
+
+  /** Procura o preço de um serviço pelo nome (com fallback) e devolve um número. */
+  getServicePriceValue(serviceName: string, fallback?: any): number {
+    const found = this.services.find(s => s.name === serviceName);
+    const raw = found?.price ?? fallback;
+    if (raw === undefined || raw === null) return 0;
+    if (typeof raw === 'number') return raw;
+    // "R$ 50,00" -> 50.00
+    const cleaned = String(raw).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
+    const value = parseFloat(cleaned);
+    return isNaN(value) ? 0 : value;
+  }
+
+  /** Formata um número como moeda BRL. */
+  formatCurrency(value: number): string {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  /** Gera e baixa o histórico de agendamentos do usuário em PDF. */
+  downloadHistoryPDF(): void {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const issueDate = new Date().toLocaleDateString('pt-BR');
+
+    // ---- Cabeçalho ----
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AgendaService', 14, 12);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Histórico de Agendamentos', 14, 20);
+
+    // ---- Informações do cliente ----
+    doc.setTextColor(30, 58, 138);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Cliente: ${this.userName || '-'}`, 14, 40);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.setFontSize(10);
+    doc.text(`Data de emissão: ${issueDate}`, 14, 47);
+    doc.text(`Total de agendamentos: ${this.reportTotalCount}`, 14, 53);
+    doc.text(`Total de gastos: ${this.reportTotalSpentLabel}`, 14, 59);
+
+    // ---- Tabela ----
+    const tableData = this.myAppointments.map(appt => [
+      appt.service,
+      appt.professional,
+      appt.date,
+      appt.time,
+      appt.priceLabel || '-',
+      appt.status
+    ]);
+
+    if (tableData.length === 0) {
+      doc.setTextColor(100, 116, 139);
+      doc.text('Nenhum agendamento registrado.', 14, 75);
+    } else {
+      autoTable(doc, {
+        head: [['Serviço', 'Profissional', 'Data', 'Horário', 'Valor', 'Status']],
+        body: tableData,
+        startY: 68,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [30, 58, 138],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'left'
+        },
+        bodyStyles: { textColor: [51, 65, 85] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        styles: { fontSize: 9, cellPadding: 4 },
+        columnStyles: {
+          4: { halign: 'right', fontStyle: 'bold' },
+          5: { halign: 'center' }
+        }
+      });
+    }
+
+    // ---- Rodapé com total ----
+    const finalY = (doc as any).lastAutoTable?.finalY ?? 75;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 138);
+    doc.text(`Total geral (não cancelados): ${this.reportTotalSpentLabel}`, 14, finalY + 12);
+
+    // Salvar
+    const filename = `historico-agendamentos-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+
+    this.successMsg = 'PDF gerado e baixado com sucesso!';
+    setTimeout(() => { this.successMsg = ''; }, 3000);
   }
 
   logout() {

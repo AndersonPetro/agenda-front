@@ -16,6 +16,12 @@
         <span class="nav-label">Agendamentos</span>
       </button>
 
+      <button class="nav-item" [class.active]="activeTab === 'relatorios'"
+        (click)="selectTab('relatorios')">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Relatórios</span>
+      </button>
+
       <button class="nav-item" [class.active]="activeTab === 'configuracoes'"
         (click)="selectTab('configuracoes')">
         <span class="nav-icon">⚙️</span>
@@ -33,6 +39,7 @@
     <header class="main-header">
       <h2 class="page-title">
         <ng-container *ngIf="activeTab === 'agendamentos'">Meus Agendamentos</ng-container>
+        <ng-container *ngIf="activeTab === 'relatorios'">Relatórios</ng-container>
         <ng-container *ngIf="activeTab === 'configuracoes'">Configurações da Conta</ng-container>
       </h2>
     </header>
@@ -141,6 +148,81 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Tab: Relatórios -->
+    <div *ngIf="activeTab === 'relatorios'" class="relatorios-tab-container">
+      <p class="description">Resumo dos seus agendamentos e atividades.</p>
+
+      <!-- Indicators -->
+      <section class="indicators-grid">
+        <div class="indicator-card">
+          <span class="indicator-label">Total de agendamentos</span>
+          <span class="indicator-value text-accent">{{ reportTotalCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Agendados / Pendentes</span>
+          <span class="indicator-value text-warning">{{ reportScheduledCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Concluídos</span>
+          <span class="indicator-value text-success">{{ reportCompletedCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Cancelados</span>
+          <span class="indicator-value text-danger">{{ reportCancelledCount }}</span>
+        </div>
+        <div class="indicator-card highlight">
+          <span class="indicator-label">Total de gastos</span>
+          <span class="indicator-value text-success money">{{ reportTotalSpentLabel }}</span>
+          <span class="indicator-subtext">Considerando agendamentos não cancelados</span>
+        </div>
+      </section>
+
+      <!-- Detailed History -->
+      <section class="report-section glass-card">
+        <div class="section-header">
+          <div>
+            <h2>Histórico Recente</h2>
+            <p class="description">Seus últimos serviços agendados.</p>
+          </div>
+          <button class="btn-pdf" (click)="downloadHistoryPDF()"
+            [disabled]="myAppointments.length === 0">
+            <span class="pdf-icon">📄</span>
+            Baixar PDF
+          </button>
+        </div>
+
+        <div *ngIf="myAppointments.length === 0" class="empty-state">
+          <span class="icon">📊</span>
+          <p>Nenhum dado para exibir ainda.</p>
+        </div>
+
+        <div class="appointments-list" *ngIf="myAppointments.length > 0">
+          <div *ngFor="let appt of paginatedHistory" class="appt-card">
+            <div class="appt-info">
+              <h3>{{ appt.service }}</h3>
+              <p class="meta">🧑‍💼 {{ appt.professional }}</p>
+              <p class="datetime">📅 {{ appt.date }} às {{ appt.time }}</p>
+              <p class="price-line" *ngIf="appt.priceLabel">💰 {{ appt.priceLabel }}</p>
+            </div>
+            <span class="badge" [ngClass]="getStatusClass(appt.status)">{{ appt.status }}</span>
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="myAppointments.length > 0">
+          <button (click)="historyPage = 1"
+            [disabled]="historyPage === 1" class="btn-page">Primeira</button>
+          <button (click)="historyPage = historyPage - 1"
+            [disabled]="historyPage === 1" class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ historyPage }} de {{ totalHistoryPages }}</span>
+          <button (click)="historyPage = historyPage + 1"
+            [disabled]="historyPage === totalHistoryPages" class="btn-page">Próxima</button>
+          <button (click)="historyPage = totalHistoryPages"
+            [disabled]="historyPage === totalHistoryPages" class="btn-page">Última</button>
+        </div>
+      </section>
     </div>
 
     <!-- Tab: Configurações -->
