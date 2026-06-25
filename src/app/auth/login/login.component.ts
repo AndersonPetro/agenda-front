@@ -118,6 +118,8 @@ export class LoginComponent {
           this.isLoading = false;
           if (this.authService.hasRole('ADMIN')) {
             this.router.navigate(['/agenda']);
+          } else if (this.authService.hasRole('FUNCIONARIO')) {
+            this.router.navigate(['/funcionario/agenda']);
           } else if (this.authService.hasRole('CLIENTE')) {
             this.router.navigate(['/user/agendamentos']);
           } else {

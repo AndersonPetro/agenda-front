@@ -19,20 +19,24 @@ export class AuthService {
     const email = credentials.email.toLowerCase();
 
     // Check mock credentials first for easy testing
-    if (email === 'admin@agenda.com' || email === 'cliente@agenda.com') {
+    if (email === 'admin@agenda.com' || email === 'cliente@agenda.com' || email === 'funcionario@agenda.com') {
       const isAdmin = email === 'admin@agenda.com';
+      const isFuncionario = email === 'funcionario@agenda.com';
       const mockResponse: AuthResponse = {
         accessToken: 'mock-jwt-token-for-testing',
         user: {
-          id: isAdmin ? 'admin-id' : 'cliente-id',
-          name: isAdmin ? 'Admin Agenda' : 'Cliente Agenda',
+          id: isAdmin ? 'admin-id' : (isFuncionario ? 'funcionario-id' : 'cliente-id'),
+          name: isAdmin ? 'Admin Agenda' : (isFuncionario ? 'Carlos Silva' : 'Cliente Agenda'),
           email: email
         }
       };
 
       return new Observable<AuthResponse>(subscriber => {
         if (this.isBrowser()) {
-          localStorage.setItem('userRole', isAdmin ? 'ADMIN' : 'CLIENTE');
+          let role = 'CLIENTE';
+          if (isAdmin) role = 'ADMIN';
+          else if (isFuncionario) role = 'FUNCIONARIO';
+          localStorage.setItem('userRole', role);
         }
         this.setSession(mockResponse);
         subscriber.next(mockResponse);

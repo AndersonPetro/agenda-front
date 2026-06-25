@@ -67,6 +67,12 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { role: 'CLIENTE' }
   },
+  {
+    path: 'funcionario/agenda',
+    loadComponent: () => import('./features/employee/dashboard/employee-dashboard.component').then(m => m.EmployeeDashboardComponent),
+    canActivate: [roleGuard],
+    data: { role: 'FUNCIONARIO' }
+  },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: '', redirectTo: '/appointments', pathMatch: 'full' },
   { path: '**', redirectTo: '/appointments' }

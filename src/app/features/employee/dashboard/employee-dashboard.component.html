@@ -1,0 +1,339 @@
+<div class="employee-layout">
+  <!-- Sidebar (Menu Lateral) -->
+  <aside class="employee-sidebar">
+    <div class="sidebar-header">
+      <div class="logo">A</div>
+      <div class="sidebar-brand">
+        <h1>AgendaService</h1>
+        <p class="subtitle">Painel do Profissional<br><strong>{{ employeeName }}</strong></p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-btn" [class.active]="activeTab === 'agenda'" (click)="selectTab('agenda')">
+        <span class="icon">📅</span>
+        <span class="label">Minha Agenda</span>
+      </button>
+
+      <button class="nav-btn" [class.active]="activeTab === 'clientes'" (click)="selectTab('clientes')">
+        <span class="icon">👥</span>
+        <span class="label">Meus Clientes</span>
+      </button>
+
+      <button class="nav-btn" [class.active]="activeTab === 'configuracoes'" (click)="selectTab('configuracoes')">
+        <span class="icon">⚙️</span>
+        <span class="label">Configurações</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="employee-main">
+    <header class="main-header">
+      <h1>
+        <ng-container *ngIf="activeTab === 'agenda'">Gestão de Agendamentos</ng-container>
+        <ng-container *ngIf="activeTab === 'clientes'">Meus Clientes Únicos</ng-container>
+        <ng-container *ngIf="activeTab === 'configuracoes'">Configurações de Disponibilidade</ng-container>
+      </h1>
+      <span class="user-role">Profissional</span>
+    </header>
+
+    <!-- Success/Error messages -->
+    <div *ngIf="successMsg" class="alert-success">{{ successMsg }}</div>
+    <div *ngIf="errorMsg" class="alert-error">{{ errorMsg }}</div>
+
+    <!-- Tab: Agenda (Agendamentos) -->
+    <div *ngIf="activeTab === 'agenda'" class="tab-content">
+      <!-- Indicators Grid -->
+      <section class="indicators-grid">
+        <div class="indicator-card">
+          <span class="indicator-label">Consultas Hoje</span>
+          <span class="indicator-value text-accent">{{ stats.todayCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Confirmados</span>
+          <span class="indicator-value text-success">{{ stats.confirmedCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Pendentes</span>
+          <span class="indicator-value text-warning">{{ stats.pendingCount }}</span>
+        </div>
+        <div class="indicator-card">
+          <span class="indicator-label">Clientes Atendidos</span>
+          <span class="indicator-value text-info">{{ stats.clientsCount }}</span>
+        </div>
+      </section>
+
+      <!-- Main Section -->
+      <section class="grid-section glass-card">
+        <div class="section-header">
+          <div>
+            <h2>Lista de Compromissos</h2>
+            <p class="description">Consulte, confirme, conclua ou cancele seus horários marcados.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-pdf" (click)="downloadAgendaPDF()">
+              <span class="pdf-icon">📄</span> Exportar PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+          <div class="search-input">
+            <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar por cliente ou serviço..."
+              (ngModelChange)="currentPage = 1">
+          </div>
+
+          <div class="filter-select">
+            <select [(ngModel)]="statusFilter" (change)="currentPage = 1">
+              <option value="">Todos os Status</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Concluído">Concluído</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="filter-date">
+            <input type="date" [(ngModel)]="dateFilter" (change)="currentPage = 1">
+          </div>
+
+          <div class="toggle-container">
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="showOnlyMine" (change)="currentPage = 1">
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-label">Ver apenas meus horários</span>
+          </div>
+        </div>
+
+        <!-- Appointments Table -->
+        <div class="table-wrapper">
+          <div *ngIf="filteredAppointments.length === 0" class="empty-state">
+            <span class="empty-icon">📅</span>
+            <p>Nenhum agendamento encontrado para os filtros aplicados.</p>
+          </div>
+
+          <table class="data-table" *ngIf="filteredAppointments.length > 0">
+            <thead>
+              <tr>
+                <th>Data / Hora</th>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Profissional</th>
+                <th>Status</th>
+                <th>Observações</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let appt of paginatedAppointments">
+                <td>
+                  <strong class="text-indigo">{{ appt.date }}</strong>
+                  <span class="appt-time">às {{ appt.time }}</span>
+                </td>
+                <td>
+                  <div class="client-info-cell">
+                    <strong>{{ appt.client }}</strong>
+                  </div>
+                </td>
+                <td>
+                  <span class="service-badge">{{ appt.service }}</span>
+                </td>
+                <td>
+                  <span class="prof-name">👤 {{ appt.professional }}</span>
+                </td>
+                <td>
+                  <span class="status-badge" [ngClass]="{
+                    'pending': appt.status === 'Pendente',
+                    'confirmed': appt.status === 'Confirmado',
+                    'completed': appt.status === 'Concluído' || appt.status === 'Confirmado' && appt.status === 'Agendado',
+                    'cancelled': appt.status === 'Cancelado'
+                  }">
+                    {{ appt.status }}
+                  </span>
+                </td>
+                <td class="notes-cell">
+                  <div class="notes-wrapper">
+                    <span class="notes-text" *ngIf="appt.notes">{{ appt.notes }}</span>
+                    <span class="no-notes" *ngIf="!appt.notes">Nenhuma nota</span>
+                    <button class="btn-icon-note" (click)="openNotesModal(appt)" title="Editar Observações">📝</button>
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <!-- Confirm action -->
+                    <button *ngIf="appt.status === 'Pendente'" class="btn-action success"
+                      (click)="confirmAppointment(appt)">
+                      Confirmar
+                    </button>
+                    <!-- Complete action -->
+                    <button *ngIf="appt.status === 'Confirmado' || appt.status === 'Pendente'" class="btn-action info"
+                      (click)="completeAppointment(appt)">
+                      Concluir
+                    </button>
+                    <!-- Cancel action -->
+                    <button *ngIf="appt.status !== 'Cancelado' && appt.status !== 'Concluído'" class="btn-action danger"
+                      (click)="cancelAppointment(appt)">
+                      Cancelar
+                    </button>
+                    <span *ngIf="appt.status === 'Concluído' || appt.status === 'Cancelado'"
+                      class="action-completed-label">-</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-controls" *ngIf="filteredAppointments.length > 0">
+          <button [disabled]="currentPage === 1" (click)="currentPage = 1" class="btn-page">Primeira</button>
+          <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1"
+            class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ currentPage }} de {{ totalApptPages }}</span>
+          <button [disabled]="currentPage === totalApptPages" (click)="currentPage = currentPage + 1"
+            class="btn-page">Próxima</button>
+          <button [disabled]="currentPage === totalApptPages" (click)="currentPage = totalApptPages"
+            class="btn-page">Última</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Clientes -->
+    <div *ngIf="activeTab === 'clientes'" class="tab-content">
+      <section class="grid-section glass-card">
+        <div class="section-header">
+          <div>
+            <h2>Seus Clientes Atendidos</h2>
+            <p class="description">Histórico de clientes que já agendaram serviços com você.</p>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="filters-bar">
+          <div class="search-input" style="max-width: 400px;">
+            <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar cliente por nome, email ou telefone..."
+              (ngModelChange)="clientsPage = 1">
+          </div>
+          <div class="toggle-container" style="margin-left: auto;">
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="showOnlyMine" (change)="clientsPage = 1">
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-label">Apenas clientes que atendi</span>
+          </div>
+        </div>
+
+        <!-- Clients Table -->
+        <div class="table-wrapper">
+          <div *ngIf="filteredClientsList.length === 0" class="empty-state">
+            <span class="empty-icon">👥</span>
+            <p>Nenhum cliente cadastrado ou encontrado.</p>
+          </div>
+
+          <table class="data-table" *ngIf="filteredClientsList.length > 0">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Total Consultas</th>
+                <th>Último Serviço</th>
+                <th>Último Agendamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of paginatedClientsList">
+                <td>
+                  <strong>{{ client.name }}</strong>
+                </td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.phone }}</td>
+                <td>
+                  <span class="appt-count-badge">{{ client.totalAppointments }}</span>
+                </td>
+                <td>
+                  <span class="service-badge">{{ client.lastService }}</span>
+                </td>
+                <td>{{ client.lastDate }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination for Clients -->
+        <div class="pagination-controls" *ngIf="filteredClientsList.length > 0">
+          <button [disabled]="clientsPage === 1" (click)="clientsPage = 1" class="btn-page">Primeira</button>
+          <button [disabled]="clientsPage === 1" (click)="clientsPage = clientsPage - 1"
+            class="btn-page">Anterior</button>
+          <span class="page-info">Página {{ clientsPage }} de {{ totalClientsPages }}</span>
+          <button [disabled]="clientsPage === totalClientsPages" (click)="clientsPage = clientsPage + 1"
+            class="btn-page">Próxima</button>
+          <button [disabled]="clientsPage === totalClientsPages" (click)="clientsPage = totalClientsPages"
+            class="btn-page">Última</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab: Configurações -->
+    <div *ngIf="activeTab === 'configuracoes'" class="tab-content">
+      <section class="grid-section glass-card" style="max-width: 600px; margin: 0 auto;">
+        <h2>Status de Disponibilidade</h2>
+        <p class="description">Gerencie seu horário de funcionamento e status operacional.</p>
+
+        <form (submit)="saveSettings(); $event.preventDefault()" class="settings-form">
+          <div class="form-group">
+            <label>Status Atual</label>
+            <select [(ngModel)]="availabilityStatus" name="status" class="form-control">
+              <option value="ATIVO">🟢 Disponível (Atendendo)</option>
+              <option value="PAUSA">🟡 Em Intervalo (Pausa)</option>
+              <option value="AUSENTE">🔴 Ausente / Folga</option>
+            </select>
+          </div>
+
+          <div class="form-group-row" style="display: flex; gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+              <label>Início do Expediente</label>
+              <input type="time" [(ngModel)]="workingHoursStart" name="start" class="form-control">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label>Fim do Expediente</label>
+              <input type="time" [(ngModel)]="workingHoursEnd" name="end" class="form-control">
+            </div>
+          </div>
+
+          <div class="settings-actions" style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="submit" class="btn-primary">Salvar Alterações</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Editar Observações / Notes -->
+<div class="modal-overlay" *ngIf="showNotesModal" (click)="closeNotesModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>Notas do Agendamento</h3>
+    <p style="color: #64748b; font-size: 0.9rem; margin-top: -0.5rem;">
+      Cliente: <strong>{{ selectedApptForNotes?.client }}</strong> - {{ selectedApptForNotes?.service }}
+    </p>
+
+    <div class="form-group">
+      <label for="notesText">Escreva observações ou detalhes importantes sobre a consulta:</label>
+      <textarea id="notesText" [(ngModel)]="apptNotesText" rows="4" class="form-control"
+        placeholder="Ex: Prefere corte degrade, alérgico a produtos químicos, etc."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeNotesModal()">Cancelar</button>
+      <button class="btn-primary" (click)="saveNotes()">Salvar</button>
+    </div>
+  </div>
+</div>
